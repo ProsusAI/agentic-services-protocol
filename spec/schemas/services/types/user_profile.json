@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/user_profile.json",
+  "title": "User Profile",
+  "description": "User profile with preferences, loyalty status, order history, and address defaults.",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "User's display name."
+    },
+    "loyalty_tier": {
+      "type": "string",
+      "description": "Current loyalty program tier as defined by the marketplace, e.g. 'gold', 'premium', 'VIP', 'level_3'."
+    },
+    "loyalty_points": {
+      "type": "integer",
+      "description": "Accumulated loyalty points.",
+      "minimum": 0
+    },
+    "preferred_categories": {
+      "type": "array",
+      "description": "User's preferred service categories for personalized recommendations.",
+      "items": {
+        "$ref": "./service_category.json"
+      }
+    },
+    "order_history": {
+      "type": "array",
+      "description": "Recent order history for reorder suggestions and personalization.",
+      "items": {
+        "$ref": "./order_history_entry.json"
+      }
+    },
+    "default_address": {
+      "$ref": "../shared/postal_address.json",
+      "description": "User's saved default address."
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/fulfillment_status.json",
+  "title": "Fulfillment Status",
+  "description": "Granular fulfillment status with ETA and optional agent location.",
+  "type": "object",
+  "required": [
+    "order_id",
+    "status",
+    "updated_at"
+  ],
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "description": "Identifier of the order being tracked."
+    },
+    "status": {
+      "type": "string",
+      "description": "Current order status.",
+      "enum": [
+        "accepted",
+        "in_progress",
+        "en_route",
+        "completed",
+        "cancelled"
+      ]
+    },
+    "estimated_service_minutes": {
+      "type": "integer",
+      "description": "Updated estimated service time in minutes.",
+      "minimum": 0
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the last status update."
+    },
+    "agent_location": {
+      "type": "object",
+      "description": "Real-time agent location for live tracking.",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        }
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "Ordered timeline of status transitions. Enables agents to narrate the full journey: 'Accepted at 7:01, picked up at 7:15.'",
+      "items": {
+        "type": "object",
+        "required": [
+          "status",
+          "timestamp"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "The status at this point in time."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this status was reached."
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional human-readable context, e.g. 'Driver stuck in traffic'."
+          }
+        }
+      }
+    },
+    "is_delayed": {
+      "type": "boolean",
+      "description": "Whether the order is running behind the original estimate. Allows agents to proactively warn: 'Heads up, your order is running late.'"
+    },
+    "delay_minutes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many minutes behind the original estimate. e.g. 'Running about 10 minutes late.'"
+    }
+  }
+}

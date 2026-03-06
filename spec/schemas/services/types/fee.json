@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/fee.json",
+  "title": "Fee",
+  "description": "An individual fee line item. Itemizes charges beyond the base price so agents can explain 'why does it cost this much?'",
+  "type": "object",
+  "required": [
+    "type",
+    "label",
+    "amount_cents"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Fee category. Base types cover common cross-vertical fees; domain profiles may define additional types.",
+      "enum": [
+        "delivery",
+        "service",
+        "small_order",
+        "platform",
+        "surge",
+        "booking",
+        "bag"
+      ]
+    },
+    "label": {
+      "type": "string",
+      "description": "Human-readable display name, e.g. 'Delivery fee', 'Bag charge', 'Surge pricing'."
+    },
+    "amount_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Fee amount in minor currency units (cents)."
+    }
+  }
+}

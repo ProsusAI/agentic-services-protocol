@@ -1,0 +1,360 @@
+openapi: 3.1.0
+info:
+  title: Agentic Services Protocol
+  version: "2026-02-19"
+  description: |
+    REST API binding for the Agentic Services Protocol (ASP).
+    Provides provider discovery, extended catalogs, fulfillment checkout,
+    order tracking, and user personalization for live service marketplaces.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: ASP Authors
+    url: https://github.com/ProsusAI/agentic-services-protocol
+
+servers:
+  - url: https://api.example.com/asp/v1
+    description: Example server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /discovery/search:
+    post:
+      operationId: provider_search
+      summary: Search for providers
+      description: Search and discover providers matching location, category, rating, and availability filters.
+      tags: [Discovery]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../../schemas/services/discovery.json#/$defs/search_request"
+      responses:
+        "200":
+          description: Matching providers
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/discovery.json#/$defs/search_response"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /catalog/{provider_id}/catalog:
+    get:
+      operationId: get_provider_catalog
+      summary: Get provider catalog
+      description: Retrieve a provider's complete catalog with sections, items, and modifier groups.
+      tags: [Catalog]
+      parameters:
+        - name: provider_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifier of the provider.
+      responses:
+        "200":
+          description: Provider catalog
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/types/service_catalog.json"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /catalog/reorder:
+    post:
+      operationId: reorder_catalog_items
+      summary: Reorder from a previous order
+      description: Return currently available catalog items from a previous order, with unavailable items called out.
+      tags: [Catalog]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../../schemas/services/catalog.json#/$defs/reorder_request"
+      responses:
+        "200":
+          description: Reorder item availability
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/catalog.json#/$defs/reorder_response"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /checkouts:
+    post:
+      operationId: create_checkout
+      summary: Create a checkout
+      description: Create a new checkout with fulfillment, item customization, and loyalty discounts.
+      tags: [Checkout]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+      responses:
+        "201":
+          description: Checkout created
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /checkouts/{checkout_id}:
+    patch:
+      operationId: update_checkout
+      summary: Update a checkout
+      description: Update checkout fields such as fulfillment address, instructions, or line items.
+      tags: [Checkout]
+      parameters:
+        - name: checkout_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+      responses:
+        "200":
+          description: Checkout updated
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /checkouts/{checkout_id}/complete:
+    post:
+      operationId: complete_checkout
+      summary: Complete a checkout
+      description: Finalize the checkout and process payment.
+      tags: [Checkout]
+      parameters:
+        - name: checkout_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [payment_method]
+              properties:
+                payment_method:
+                  type: string
+                  description: Payment method identifier.
+      responses:
+        "200":
+          description: Checkout completed, order created
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /orders/{order_id}/tracking:
+    get:
+      operationId: get_order_tracking
+      summary: Get order tracking status
+      description: Retrieve the current fulfillment status and ETA for an order.
+      tags: [Order Tracking]
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current fulfillment status
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/types/fulfillment_status.json"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /reviews:
+    post:
+      operationId: submit_review
+      summary: Submit a post-service review
+      description: Submit a review for a completed order and provider.
+      tags: [Reviews]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../../schemas/services/reviews.json#/$defs/submit_review_request"
+      responses:
+        "201":
+          description: Review submitted
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/reviews.json#/$defs/submit_review_response"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /reviews/{provider_id}:
+    get:
+      operationId: get_provider_reviews
+      summary: Get provider reviews
+      description: Retrieve paginated reviews for a provider.
+      tags: [Reviews]
+      parameters:
+        - name: provider_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Provider reviews
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/reviews.json#/$defs/get_reviews_response"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /personalization/profile:
+    get:
+      operationId: get_user_profile
+      summary: Get user profile
+      description: Retrieve the authenticated user's profile including preferences, loyalty status, and order history.
+      tags: [Personalization]
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/types/user_profile.json"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /personalization/promotions:
+    get:
+      operationId: get_promotions
+      summary: Get personalized promotions
+      description: Retrieve promotions personalized to the authenticated user, optionally scoped to a provider.
+      tags: [Personalization]
+      parameters:
+        - name: provider_id
+          in: query
+          schema:
+            type: string
+          description: Scope promotions to a specific provider.
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: Maximum number of promotions to return.
+      responses:
+        "200":
+          description: Personalized promotions
+          content:
+            application/json:
+              schema:
+                $ref: "../../schemas/services/personalization.json#/$defs/promotions_response"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+webhooks:
+  order_status_update:
+    post:
+      operationId: on_order_status_update
+      summary: Order status update webhook
+      description: Sent by the marketplace when an order's fulfillment status changes.
+      tags: [Order Tracking]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../../schemas/services/order_tracking.json#/$defs/status_update_event"
+      responses:
+        "200":
+          description: Acknowledged
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token authentication.
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: Machine-readable error code.
+            message:
+              type: string
+              description: Human-readable error message.
+            details:
+              type: object
+              description: Additional error context.

@@ -1,0 +1,462 @@
+{
+  "openrpc": "1.3.2",
+  "info": {
+    "title": "Agentic Services Protocol — MCP Transport",
+    "version": "2026-02-19",
+    "description": "MCP (Model Context Protocol) transport binding for ASP. Defines JSON-RPC methods that MCP servers expose as tools to LLMs. Each method maps 1:1 to a REST endpoint in openapi.yaml, using the same request/response schemas.",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "methods": [
+    {
+      "name": "provider_search",
+      "summary": "Search for providers by location, category, rating, and availability.",
+      "description": "Equivalent to POST /discovery/search. Returns a paginated list of providers matching the given filters.",
+      "params": [
+        {
+          "name": "filters",
+          "description": "Search filters including location, category, rating, service time, and price level.",
+          "required": true,
+          "schema": {
+            "$ref": "../../schemas/services/types/provider_filter.json"
+          }
+        }
+      ],
+      "result": {
+        "name": "search_results",
+        "description": "Matching providers with pagination metadata.",
+        "schema": {
+          "$ref": "../../schemas/services/discovery.json#/$defs/search_response"
+        }
+      },
+      "tags": [
+        { "name": "discovery" }
+      ]
+    },
+    {
+      "name": "get_provider_catalog",
+      "summary": "Get a provider's complete catalog with sections, items, and modifiers.",
+      "description": "Equivalent to GET /catalog/{provider_id}/catalog. Returns the full catalog structure including modifier groups.",
+      "params": [
+        {
+          "name": "provider_id",
+          "description": "Identifier of the provider whose catalog to retrieve.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "catalog",
+        "description": "The provider's complete catalog.",
+        "schema": {
+          "$ref": "../../schemas/services/types/service_catalog.json"
+        }
+      },
+      "tags": [
+        { "name": "catalog" }
+      ]
+    },
+    {
+      "name": "reorder_catalog_items",
+      "summary": "Reorder from a previous order and return currently available items.",
+      "description": "Equivalent to POST /catalog/reorder. Returns available items and a list of unavailable items from the original order.",
+      "params": [
+        {
+          "name": "order_id",
+          "description": "The previous order to reorder from.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "provider_id",
+          "description": "The provider the original order belongs to.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "scheduled_for",
+          "description": "Optional ISO 8601 datetime for scheduled reorder fulfillment.",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      ],
+      "result": {
+        "name": "reorder_result",
+        "description": "Available and unavailable items from the prior order.",
+        "schema": {
+          "$ref": "../../schemas/services/catalog.json#/$defs/reorder_response"
+        }
+      },
+      "tags": [
+        { "name": "catalog" }
+      ]
+    },
+    {
+      "name": "create_checkout",
+      "summary": "Create a checkout with line items, fulfillment, and loyalty discount.",
+      "description": "Equivalent to POST /checkouts. Creates a new checkout extending UCP checkout with fulfillment, per-item customization, and loyalty-tier discounts.",
+      "params": [
+        {
+          "name": "line_items",
+          "description": "Cart items with optional special instructions and modifier selections.",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "https://ucp.dev/schemas/shopping/line_item.json" },
+                { "$ref": "../../schemas/services/types/item_customization.json" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "fulfillment",
+          "description": "Fulfillment details including address and instructions.",
+          "required": true,
+          "schema": {
+            "$ref": "../../schemas/services/types/fulfillment.json"
+          }
+        },
+        {
+          "name": "loyalty",
+          "description": "Loyalty tier discount to apply.",
+          "required": false,
+          "schema": {
+            "$ref": "../../schemas/services/types/loyalty_discount.json"
+          }
+        }
+      ],
+      "result": {
+        "name": "checkout",
+        "description": "The created checkout with computed totals.",
+        "schema": {
+          "$ref": "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+        }
+      },
+      "tags": [
+        { "name": "checkout" }
+      ]
+    },
+    {
+      "name": "update_checkout",
+      "summary": "Update an existing checkout.",
+      "description": "Equivalent to PATCH /checkouts/{checkout_id}. Update fulfillment address, instructions, line items, or other checkout fields.",
+      "params": [
+        {
+          "name": "checkout_id",
+          "description": "Identifier of the checkout to update.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "updates",
+          "description": "Fields to update on the checkout.",
+          "required": true,
+          "schema": {
+            "$ref": "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+          }
+        }
+      ],
+      "result": {
+        "name": "checkout",
+        "description": "The updated checkout.",
+        "schema": {
+          "$ref": "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+        }
+      },
+      "tags": [
+        { "name": "checkout" }
+      ]
+    },
+    {
+      "name": "complete_checkout",
+      "summary": "Finalize a checkout and process payment.",
+      "description": "Equivalent to POST /checkouts/{checkout_id}/complete. Completes the checkout, processes payment, and creates an order.",
+      "params": [
+        {
+          "name": "checkout_id",
+          "description": "Identifier of the checkout to complete.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "payment_method",
+          "description": "Payment method identifier.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "checkout",
+        "description": "The completed checkout with order confirmation.",
+        "schema": {
+          "$ref": "../../schemas/services/fulfillment.json#/$defs/fulfillment_checkout"
+        }
+      },
+      "tags": [
+        { "name": "checkout" }
+      ]
+    },
+    {
+      "name": "get_order_tracking",
+      "summary": "Get the current fulfillment status and ETA for an order.",
+      "description": "Equivalent to GET /orders/{order_id}/tracking. Returns the latest fulfillment status including estimated time and optional agent location.",
+      "params": [
+        {
+          "name": "order_id",
+          "description": "Identifier of the order to track.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "fulfillment_status",
+        "description": "Current fulfillment status with ETA.",
+        "schema": {
+          "$ref": "../../schemas/services/types/fulfillment_status.json"
+        }
+      },
+      "tags": [
+        { "name": "order_tracking" }
+      ]
+    },
+    {
+      "name": "submit_review",
+      "summary": "Submit a post-service review for a completed order.",
+      "description": "Equivalent to POST /reviews. Creates a review with rating, optional comment, and optional category scores.",
+      "params": [
+        {
+          "name": "order_id",
+          "description": "The order being reviewed.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "provider_id",
+          "description": "The provider being reviewed.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "rating",
+          "description": "Overall rating out of 5.",
+          "required": true,
+          "schema": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          }
+        },
+        {
+          "name": "comment",
+          "description": "Optional free-text review.",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        {
+          "name": "scores",
+          "description": "Optional category scores.",
+          "required": false,
+          "schema": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 5
+            }
+          }
+        }
+      ],
+      "result": {
+        "name": "review",
+        "description": "The created review.",
+        "schema": {
+          "$ref": "../../schemas/services/reviews.json#/$defs/submit_review_response"
+        }
+      },
+      "tags": [
+        { "name": "reviews" }
+      ]
+    },
+    {
+      "name": "get_provider_reviews",
+      "summary": "Retrieve paginated reviews for a provider.",
+      "description": "Equivalent to GET /reviews/{provider_id}. Returns reviews, average rating, and pagination metadata.",
+      "params": [
+        {
+          "name": "provider_id",
+          "description": "The provider whose reviews to retrieve.",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "page",
+          "description": "Page number.",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        {
+          "name": "page_size",
+          "description": "Number of reviews per page.",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20
+          }
+        }
+      ],
+      "result": {
+        "name": "reviews",
+        "description": "Paginated reviews for the provider.",
+        "schema": {
+          "$ref": "../../schemas/services/reviews.json#/$defs/get_reviews_response"
+        }
+      },
+      "tags": [
+        { "name": "reviews" }
+      ]
+    },
+    {
+      "name": "get_user_profile",
+      "summary": "Get the authenticated user's profile.",
+      "description": "Equivalent to GET /personalization/profile. Returns preferences, loyalty status, order history, and default address.",
+      "params": [],
+      "result": {
+        "name": "profile",
+        "description": "The user's profile.",
+        "schema": {
+          "$ref": "../../schemas/services/types/user_profile.json"
+        }
+      },
+      "tags": [
+        { "name": "personalization" }
+      ]
+    },
+    {
+      "name": "get_promotions",
+      "summary": "Get personalized promotions for the user.",
+      "description": "Equivalent to GET /personalization/promotions. Returns promotions personalized to the user, optionally scoped to a provider.",
+      "params": [
+        {
+          "name": "provider_id",
+          "description": "Scope promotions to a specific provider.",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of promotions to return.",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "result": {
+        "name": "promotions",
+        "description": "Personalized promotions.",
+        "schema": {
+          "$ref": "../../schemas/services/personalization.json#/$defs/promotions_response"
+        }
+      },
+      "tags": [
+        { "name": "personalization" }
+      ]
+    }
+  ],
+  "components": {
+    "x-notifications": {
+      "order_status_updated": {
+        "name": "order_status_updated",
+        "summary": "Notification sent when an order's fulfillment status changes.",
+        "description": "Push-model counterpart to get_order_tracking. The MCP server emits this as a resource update notification (resources/updated) on the order resource URI. Clients subscribe to order://{order_id}/status to receive these.",
+        "params": [
+          {
+            "name": "event",
+            "description": "The status update event payload.",
+            "required": true,
+            "schema": {
+              "$ref": "../../schemas/services/order_tracking.json#/$defs/status_update_event"
+            }
+          }
+        ]
+      },
+      "tracking_stream_event": {
+        "name": "tracking_stream_event",
+        "summary": "Continuous tracking event from the live stream (location, status, heartbeat).",
+        "description": "Emitted as a resource update on order://{order_id}/tracking/stream. The MCP server bridges the WebSocket channel and forwards tracking_stream_event frames as resource notifications. Location updates arrive every 3-5 seconds during en_route.",
+        "params": [
+          {
+            "name": "event",
+            "description": "The tracking stream event payload.",
+            "required": true,
+            "schema": {
+              "$ref": "../../schemas/services/types/tracking_stream_event.json"
+            }
+          }
+        ]
+      }
+    },
+    "x-mcp-resources": {
+      "description": "MCP resource URIs exposed by this server. Clients can subscribe to these for real-time updates.",
+      "resources": [
+        {
+          "uri_template": "order://{order_id}/status",
+          "name": "Order Fulfillment Status",
+          "description": "Live fulfillment status for an order. Subscribe to receive status_update_event notifications as the order progresses through accepted → in_progress → en_route → completed.",
+          "mimeType": "application/json"
+        },
+        {
+          "uri_template": "provider://{provider_id}/catalog",
+          "name": "Provider Catalog",
+          "description": "A provider's current catalog. May change due to item availability.",
+          "mimeType": "application/json"
+        },
+        {
+          "uri_template": "order://{order_id}/tracking/stream",
+          "name": "Order Live Tracking Stream",
+          "description": "Real-time location and status stream for an active order. The MCP server internally connects to the WebSocket channel (defined in asyncapi.yaml) and surfaces continuous tracking_stream_event updates as frequent resource update notifications. Provides agent GPS coordinates every 3-5 seconds during the en_route phase.",
+          "mimeType": "application/json"
+        }
+      ]
+    }
+  }
+}

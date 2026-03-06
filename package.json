@@ -1,0 +1,17 @@
+{
+  "name": "asp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agentic Services Protocol (ASP) — schema tooling and type generation",
+  "scripts": {
+    "generate:types": "node scripts/generate-types.mjs",
+    "generate:pydantic": "node scripts/bundle-schemas.mjs && scripts/generate-pydantic.sh",
+    "lint": "biome lint .",
+    "validate": "python validate_specs.py"
+  },
+  "devDependencies": {
+    "@apidevtools/json-schema-ref-parser": "^15.0.0",
+    "@biomejs/biome": "^1.9.0",
+    "json-schema-to-typescript": "^15.0.0"
+  }
+}

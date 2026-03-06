@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/fulfillment.json",
+  "name": "dev.asp.services.fulfillment",
+  "version": "2026-02-19",
+  "extends": "dev.ucp.shopping.checkout",
+  "title": "Fulfillment Extension",
+  "description": "Adds fulfillment type, per-item customization, and loyalty-based discounts to UCP checkout.",
+  "type": "object",
+  "$defs": {
+    "fulfillment_checkout": {
+      "description": "UCP checkout extended with fulfillment, item customization, and loyalty discounts.",
+      "allOf": [
+        {
+          "$ref": "https://ucp.dev/schemas/shopping/checkout.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fulfillment": {
+              "$ref": "./types/fulfillment.json",
+              "description": "Fulfillment details."
+            },
+            "line_items": {
+              "type": "array",
+              "description": "Cart line items with optional per-item customization.",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "https://ucp.dev/schemas/shopping/types/line_item.json"
+                  },
+                  {
+                    "$ref": "./types/item_customization.json"
+                  }
+                ]
+              }
+            },
+            "loyalty": {
+              "$ref": "./types/loyalty_discount.json",
+              "description": "Loyalty tier discount applied to this checkout."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

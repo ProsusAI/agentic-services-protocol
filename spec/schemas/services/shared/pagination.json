@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/shared/pagination.json",
+  "title": "Pagination",
+  "description": "Reusable pagination parameters for any list endpoint.",
+  "type": "object",
+  "properties": {
+    "page": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Page number to retrieve."
+    },
+    "page_size": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "default": 20,
+      "description": "Number of items per page."
+    },
+    "total_items": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of items across all pages."
+    },
+    "total_pages": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of pages."
+    }
+  }
+}

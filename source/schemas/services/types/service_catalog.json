@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/service_catalog.json",
+  "title": "Service Catalog",
+  "description": "A provider's complete catalog with sections and items.",
+  "type": "object",
+  "required": [
+    "provider_id",
+    "sections"
+  ],
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "Identifier of the provider this catalog belongs to."
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Display name of the provider."
+    },
+    "sections": {
+      "type": "array",
+      "description": "Catalog sections containing items.",
+      "items": {
+        "$ref": "./catalog_section.json"
+      }
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the last catalog update."
+    }
+  }
+}

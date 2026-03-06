@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/tracking_stream_event.json",
+  "title": "Tracking Stream Event",
+  "description": "Message envelope for all WebSocket frames on the order tracking stream. Each frame carries an event_type discriminator and a payload referencing existing ASP schemas.",
+  "type": "object",
+  "required": [
+    "event_type",
+    "timestamp"
+  ],
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "description": "Discriminator for routing the message to the correct handler.",
+      "enum": [
+        "location_update",
+        "status_changed",
+        "heartbeat"
+      ]
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Identifier of the order being tracked. Present on all events except heartbeat."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Server timestamp when the event was emitted."
+    }
+  },
+  "oneOf": [
+    {
+      "description": "Continuous agent location and ETA update. Sent every 3-5 seconds during the en_route phase.",
+      "properties": {
+        "event_type": {
+          "const": "location_update"
+        },
+        "payload": {
+          "type": "object",
+          "required": [
+            "agent_location",
+            "updated_at"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "Current order status at time of location update.",
+              "enum": [
+                "accepted",
+                "in_progress",
+                "en_route",
+                "completed",
+                "cancelled"
+              ]
+            },
+            "agent_location": {
+              "type": "object",
+              "required": [
+                "latitude",
+                "longitude"
+              ],
+              "properties": {
+                "latitude": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90
+                },
+                "longitude": {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180
+                },
+                "heading": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 360,
+                  "description": "Compass heading in degrees (0 = north, 90 = east). Useful for rotating a map marker."
+                },
+                "speed_kmh": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Current speed in km/h."
+                }
+              },
+              "description": "Real-time agent location."
+            },
+            "estimated_service_minutes": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Updated ETA in minutes."
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp of the GPS reading."
+            }
+          }
+        }
+      },
+      "required": [
+        "event_type",
+        "order_id",
+        "payload",
+        "timestamp"
+      ]
+    },
+    {
+      "description": "Status transition event. Sent when the order moves between lifecycle stages.",
+      "properties": {
+        "event_type": {
+          "const": "status_changed"
+        },
+        "payload": {
+          "$ref": "./status_update_event.json"
+        }
+      },
+      "required": [
+        "event_type",
+        "order_id",
+        "payload",
+        "timestamp"
+      ]
+    },
+    {
+      "description": "Keep-alive heartbeat. Sent every 30 seconds to maintain the connection.",
+      "properties": {
+        "event_type": {
+          "const": "heartbeat"
+        },
+        "payload": {
+          "type": "object",
+          "properties": {
+            "server_time": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Current server time."
+            }
+          }
+        }
+      },
+      "required": [
+        "event_type",
+        "timestamp"
+      ]
+    }
+  ]
+}

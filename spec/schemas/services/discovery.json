@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/discovery.json",
+  "name": "dev.asp.services.discovery",
+  "version": "2026-02-19",
+  "title": "Provider Discovery",
+  "description": "Search and discover providers. Supports location-based, category, rating, and availability filtering.",
+  "type": "object",
+  "$defs": {
+    "search_request": {
+      "type": "object",
+      "description": "Request to search for providers matching the given filters.",
+      "required": [
+        "filters"
+      ],
+      "properties": {
+        "filters": {
+          "$ref": "./types/provider_filter.json"
+        },
+        "sort_by": {
+          "type": "string",
+          "description": "Dimension to sort results by.",
+          "enum": [
+            "relevance",
+            "rating",
+            "distance",
+            "price_low",
+            "price_high",
+            "estimated_time",
+            "newest"
+          ],
+          "default": "relevance"
+        },
+        "sort_order": {
+          "type": "string",
+          "description": "Sort direction.",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Page number to retrieve."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "description": "Number of providers per page."
+        }
+      }
+    },
+    "search_response": {
+      "type": "object",
+      "description": "Paginated list of providers matching the search criteria.",
+      "required": [
+        "providers"
+      ],
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": {
+            "$ref": "./types/provider.json"
+          }
+        },
+        "total_results": {
+          "type": "integer",
+          "description": "Total number of matching providers."
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "Whether additional results are available."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./capability.json",
+  "title": "Capability Declaration",
+  "description": "Describes a single capability or extension in a discovery profile.",
+  "type": "object",
+  "required": [
+    "name",
+    "version"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Reverse-domain identifier, e.g. dev.asp.services.discovery."
+    },
+    "version": {
+      "type": "string",
+      "description": "Capability version in YYYY-MM-DD format.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "spec": {
+      "type": "string",
+      "format": "uri",
+      "description": "Link to the human-readable spec page."
+    },
+    "schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "Link to the JSON schema."
+    },
+    "extends": {
+      "type": "string",
+      "description": "Name of the capability this extends. Only set for extensions."
+    }
+  }
+}

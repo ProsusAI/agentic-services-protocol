@@ -1,0 +1,45 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Ruff check
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Biome lint
+        run: npx biome lint .
+
+      - name: Validate PR title (conventional commits)
+        if: github.event_name == 'pull_request'
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          if ! echo "$TITLE" | grep -qE "^(feat|fix|docs|refactor|chore|test|ci|perf|style|build|revert)(\(.+\))?:"; then
+            echo "ERROR: PR title must follow conventional commits format."
+            echo "  e.g. feat: add merchant search endpoint"
+            echo "  Got: $TITLE"
+            exit 1
+          fi

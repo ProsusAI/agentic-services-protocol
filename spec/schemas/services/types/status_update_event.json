@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/status_update_event.json",
+  "title": "Status Update Event",
+  "description": "Webhook payload sent when order status changes. Push model \u2014 the marketplace sends this to the agent/platform.",
+  "type": "object",
+  "required": [
+    "event_type",
+    "order_id",
+    "status"
+  ],
+  "properties": {
+    "event_type": {
+      "type": "string",
+      "const": "order.status_updated",
+      "description": "Event type identifier."
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Identifier of the order whose status changed."
+    },
+    "status": {
+      "$ref": "./fulfillment_status.json",
+      "description": "The updated fulfillment status."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the event was emitted."
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/reviews.json",
+  "name": "dev.asp.services.reviews",
+  "version": "2026-02-19",
+  "title": "Reviews",
+  "description": "Submit and retrieve post-service reviews. Enables agents to recommend providers with confidence and close the loop after service delivery.",
+  "type": "object",
+  "$defs": {
+    "submit_review_request": {
+      "type": "object",
+      "description": "Request to submit a review after service completion.",
+      "required": ["order_id", "provider_id", "rating"],
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The order being reviewed."
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "The provider being reviewed."
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Overall rating out of 5."
+        },
+        "comment": {
+          "type": "string",
+          "description": "Optional free-text review.",
+          "maxLength": 2000
+        },
+        "scores": {
+          "type": "object",
+          "description": "Optional category scores.",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          }
+        }
+      }
+    },
+    "submit_review_response": {
+      "description": "The created review.",
+      "$ref": "./types/review.json"
+    },
+    "get_reviews_request": {
+      "type": "object",
+      "description": "Request to retrieve reviews for a provider.",
+      "required": ["provider_id"],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "The provider whose reviews to retrieve."
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Page number."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "description": "Number of reviews per page."
+        }
+      }
+    },
+    "get_reviews_response": {
+      "type": "object",
+      "description": "Paginated list of reviews for a provider.",
+      "required": ["reviews", "average_rating", "total_reviews"],
+      "properties": {
+        "reviews": {
+          "type": "array",
+          "items": {
+            "$ref": "./types/review.json"
+          },
+          "description": "List of reviews."
+        },
+        "average_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Provider's average rating across all reviews."
+        },
+        "total_reviews": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of reviews for this provider."
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "Whether more pages of reviews are available."
+        }
+      }
+    }
+  }
+}

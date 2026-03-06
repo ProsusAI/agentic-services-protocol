@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/modifier_option.json",
+  "title": "Modifier Option",
+  "description": "A single selectable option within a modifier group (e.g. 'Large', 'Extra Cheese').",
+  "type": "object",
+  "required": [
+    "id",
+    "label"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique option identifier."
+    },
+    "label": {
+      "type": "string",
+      "description": "Display label for this option."
+    },
+    "price_delta_cents": {
+      "type": "integer",
+      "description": "Price adjustment in cents when this option is selected.",
+      "default": 0
+    }
+  }
+}

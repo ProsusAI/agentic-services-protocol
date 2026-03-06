@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/provider.json",
+  "title": "Provider",
+  "description": "A service provider available for discovery and ordering.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "category",
+    "rating",
+    "estimated_service_minutes",
+    "service_fee_cents",
+    "minimum_order_cents",
+    "price_level",
+    "is_open_now",
+    "image",
+    "address",
+    "is_promoted",
+    "tags"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique provider identifier."
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name of the provider."
+    },
+    "category": {
+      "$ref": "./service_category.json",
+      "description": "Primary service category classification."
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average provider rating.",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "rating_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of ratings/reviews. Gives agents confidence to recommend: '4.8 stars from 2,300 reviews'."
+    },
+    "estimated_service_minutes": {
+      "type": "integer",
+      "description": "Estimated service time in minutes."
+    },
+    "service_fee_cents": {
+      "type": "integer",
+      "description": "Service fee in cents.",
+      "minimum": 0
+    },
+    "minimum_order_cents": {
+      "type": "integer",
+      "description": "Minimum order amount in cents.",
+      "minimum": 0
+    },
+    "price_level": {
+      "$ref": "./price_level.json",
+      "description": "Price tier classification."
+    },
+    "is_open_now": {
+      "type": "boolean",
+      "description": "Whether the provider is currently accepting orders."
+    },
+    "image": {
+      "$ref": "../shared/image.json",
+      "description": "Provider logo or hero image."
+    },
+    "address": {
+      "$ref": "../shared/postal_address.json",
+      "description": "Physical location of the provider."
+    },
+    "is_promoted": {
+      "type": "boolean",
+      "description": "Whether the provider is currently being promoted."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Free-form tags relevant to this provider, e.g. 'fast food', 'gourmet', 'date night', 'romantic'."
+    },
+    "operating_hours": {
+      "type": "array",
+      "description": "Weekly operating schedule. Omit if provider is always available or schedule is unknown.",
+      "items": {
+        "$ref": "./operating_hours_entry.json"
+      }
+    },
+    "next_opens_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when a currently closed provider next opens. Allows agents to say 'opens at 11am tomorrow' without parsing the full schedule."
+    },
+    "images": {
+      "type": "array",
+      "description": "Multiple images for different contexts (thumbnail for search, banner for detail page, etc.).",
+      "items": {
+        "$ref": "../shared/image.json"
+      }
+    }
+  }
+}

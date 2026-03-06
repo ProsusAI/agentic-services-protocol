@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/provider_filter.json",
+  "title": "Provider Filter",
+  "description": "Filter criteria for provider discovery searches.",
+  "type": "object",
+  "required": [
+    "location"
+  ],
+  "properties": {
+    "location": {
+      "$ref": "../shared/postal_address.json",
+      "description": "Location to search around."
+    },
+    "category": {
+      "$ref": "./service_category.json",
+      "description": "Filter by service category."
+    },
+    "is_open_now": {
+      "type": "boolean",
+      "description": "Only return providers currently open."
+    },
+    "min_rating": {
+      "type": "number",
+      "description": "Minimum provider rating.",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "max_service_minutes": {
+      "type": "integer",
+      "description": "Maximum acceptable service time in minutes.",
+      "minimum": 1
+    },
+    "price_level": {
+      "$ref": "./price_level.json",
+      "description": "Filter by price tier."
+    },
+    "minimum_order_cents": {
+      "type": "integer",
+      "description": "Minimum order amount in cents.",
+      "minimum": 0
+    },
+    "query": {
+      "type": "string",
+      "description": "Free-text search query."
+    },
+    "is_promoted": {
+      "type": "boolean",
+      "description": "Whether the provider is currently being promoted."
+    }
+  }
+}

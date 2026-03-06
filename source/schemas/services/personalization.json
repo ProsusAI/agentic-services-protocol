@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/personalization.json",
+  "name": "dev.asp.services.personalization",
+  "version": "2026-02-19",
+  "title": "User Profile & Personalization",
+  "description": "User profiles, preferences, order history, and personalized promotions.",
+  "type": "object",
+  "$defs": {
+    "profile_response": {
+      "description": "The user's profile including preferences, loyalty status, and order history.",
+      "$ref": "./types/user_profile.json"
+    },
+    "promotions_request": {
+      "type": "object",
+      "description": "Request for personalized promotions, optionally scoped to a provider.",
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "Scope promotions to a specific provider."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum number of promotions to return.",
+          "minimum": 1
+        }
+      }
+    },
+    "promotions_response": {
+      "type": "object",
+      "description": "List of personalized promotions for the user.",
+      "required": [
+        "promotions"
+      ],
+      "properties": {
+        "promotions": {
+          "type": "array",
+          "items": {
+            "$ref": "./types/promotion.json"
+          }
+        }
+      }
+    }
+  }
+}

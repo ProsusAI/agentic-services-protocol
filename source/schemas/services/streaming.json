@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/streaming.json",
+  "name": "dev.asp.services.streaming",
+  "version": "2026-02-19",
+  "extends": "dev.asp.services.order_tracking",
+  "title": "Live Tracking Stream",
+  "description": "Adds real-time WebSocket streaming to ASP order tracking. Provides continuous agent location updates, status transition events, and heartbeat keep-alives over a persistent connection.",
+  "type": "object",
+  "$defs": {
+    "stream_subscribe": {
+      "type": "object",
+      "description": "Client-to-server message to start receiving tracking events for an order.",
+      "required": [
+        "action",
+        "order_id",
+        "token"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "const": "subscribe",
+          "description": "Action identifier."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Identifier of the order to track."
+        },
+        "token": {
+          "type": "string",
+          "description": "Bearer token for authentication. Sent in the first message since WebSocket handshake does not support custom HTTP headers in browsers."
+        }
+      }
+    },
+    "stream_unsubscribe": {
+      "type": "object",
+      "description": "Client-to-server message to stop receiving tracking events for an order.",
+      "required": [
+        "action",
+        "order_id"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "const": "unsubscribe",
+          "description": "Action identifier."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Identifier of the order to stop tracking."
+        }
+      }
+    },
+    "stream_event": {
+      "$ref": "./types/tracking_stream_event.json",
+      "description": "Server-to-client event envelope. See tracking_stream_event.json for the full schema."
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/catalog_section.json",
+  "title": "Catalog Section",
+  "description": "A categorized section of a provider's catalog (e.g. 'Appetizers', 'Sedans', 'Suites').",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "items",
+    "is_featured"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique section identifier."
+    },
+    "title": {
+      "type": "string",
+      "description": "Display title for this section."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional section description."
+    },
+    "items": {
+      "type": "array",
+      "description": "Items in this section.",
+      "minItems": 1,
+      "items": {
+        "$ref": "./catalog_item.json"
+      }
+    },
+    "is_featured": {
+      "type": "boolean",
+      "description": "Whether this section is currently featured."
+    }
+  }
+}

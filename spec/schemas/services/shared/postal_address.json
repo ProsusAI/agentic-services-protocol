@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/shared/postal_address.json",
+  "title": "Postal Address",
+  "description": "Physical address for fulfillment or provider location.",
+  "type": "object",
+  "required": [
+    "street_line_1",
+    "city",
+    "postal_code",
+    "country_code"
+  ],
+  "properties": {
+    "street_line_1": {
+      "type": "string",
+      "description": "Primary street address."
+    },
+    "street_line_2": {
+      "type": "string",
+      "description": "Secondary address line (apt, suite, unit)."
+    },
+    "city": {
+      "type": "string",
+      "description": "City name."
+    },
+    "state": {
+      "type": "string",
+      "description": "State or province."
+    },
+    "postal_code": {
+      "type": "string",
+      "description": "Postal or ZIP code."
+    },
+    "country_code": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country code.",
+      "minLength": 2,
+      "maxLength": 2
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude for proximity-based operations.",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude for proximity-based operations.",
+      "minimum": -180,
+      "maximum": 180
+    }
+  }
+}

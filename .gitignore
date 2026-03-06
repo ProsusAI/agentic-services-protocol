@@ -1,0 +1,46 @@
+# Environment & secrets
+.env
+.env.*
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+.venv/
+venv/
+*.so
+
+# Node
+node_modules/
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+site/
+
+# Planning docs (local only)
+ASP_EXTENSION_PLAN.md
+PCP_vs_JET_Swagger_Comparison.pdf
+ASP_EXTENSION_SUMMARY.md
+ASP_EXTENSION_SUMMARY.pdf
+docs/assets/inspo.webp
+blog-post-draft.md
+
+# Note: spec/ and generated/ are NOT ignored — they are committed artifacts

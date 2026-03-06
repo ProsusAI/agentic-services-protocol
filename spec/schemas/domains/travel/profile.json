@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./domains/travel/profile.json",
+  "title": "Travel & Accommodation Domain Profile",
+  "description": "Constrains ASP abstract schemas for travel, accommodation, and booking marketplaces. Defines accommodation categories, amenities, and booking fulfillment.",
+  "type": "object",
+  "properties": {
+    "service_categories": {
+      "description": "Allowed service_category values for travel and accommodation providers.",
+      "type": "string",
+      "enum": [
+        "hotel",
+        "villa",
+        "hostel",
+        "apartment",
+        "resort",
+        "boutique",
+        "bed_and_breakfast",
+        "vacation_rental",
+        "motel",
+        "guesthouse",
+        "campsite",
+        "serviced_apartment"
+      ]
+    },
+    "fulfillment_types": {
+      "description": "Fulfillment types applicable to travel.",
+      "type": "string",
+      "enum": [
+        "booking"
+      ]
+    },
+    "amenity_tags": {
+      "description": "Standard amenity tags for accommodation listings.",
+      "type": "string",
+      "enum": [
+        "wifi",
+        "pool",
+        "spa",
+        "gym",
+        "parking",
+        "breakfast_included",
+        "air_conditioning",
+        "kitchen",
+        "laundry",
+        "pet_friendly",
+        "airport_shuttle",
+        "room_service",
+        "concierge",
+        "beach_access",
+        "balcony",
+        "ev_charging",
+        "accessible"
+      ]
+    },
+    "room_types": {
+      "description": "Standard room or unit type classifications.",
+      "type": "string",
+      "enum": [
+        "single",
+        "double",
+        "twin",
+        "suite",
+        "family",
+        "penthouse",
+        "studio",
+        "dormitory",
+        "entire_property"
+      ]
+    },
+    "cancellation_policies": {
+      "description": "Standard cancellation policy tiers.",
+      "type": "string",
+      "enum": [
+        "free_cancellation",
+        "flexible",
+        "moderate",
+        "strict",
+        "non_refundable"
+      ]
+    }
+  },
+  "$defs": {
+    "travel_catalog_item": {
+      "description": "A catalog_item representing an accommodation listing. Each 'item' is a room type or property with date-based pricing.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/catalog_item.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "room_type": {
+              "$ref": "#/properties/room_types",
+              "description": "Type of room or unit."
+            },
+            "max_guests": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum guest capacity."
+            },
+            "amenities": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/amenity_tags"
+              },
+              "description": "Amenities available with this listing."
+            },
+            "cancellation_policy": {
+              "$ref": "#/properties/cancellation_policies",
+              "description": "Cancellation policy for this listing."
+            },
+            "price_per_night_cents": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Nightly rate in cents. Overrides base price_cents for date-range pricing."
+            },
+            "check_in_time": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "description": "Earliest check-in time (HH:MM, 24h)."
+            },
+            "check_out_time": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "description": "Latest check-out time (HH:MM, 24h)."
+            }
+          }
+        }
+      ]
+    },
+    "travel_provider": {
+      "description": "A provider extended with travel-specific metadata.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/provider.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "accommodation_type": {
+              "$ref": "#/properties/service_categories",
+              "description": "Primary accommodation type."
+            },
+            "star_rating": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Official star classification (hotels, resorts)."
+            },
+            "amenities": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/amenity_tags"
+              },
+              "description": "Property-level amenities."
+            },
+            "total_units": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Total number of rooms or units available."
+            }
+          }
+        }
+      ]
+    },
+    "travel_fulfillment": {
+      "description": "Extends the abstract fulfillment type with booking-specific fields.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/fulfillment.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "check_in_date",
+            "check_out_date"
+          ],
+          "properties": {
+            "check_in_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Check-in date (YYYY-MM-DD)."
+            },
+            "check_out_date": {
+              "type": "string",
+              "format": "date",
+              "description": "Check-out date (YYYY-MM-DD)."
+            },
+            "guests": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of guests for the booking."
+            },
+            "special_requests": {
+              "type": "string",
+              "maxLength": 1000,
+              "description": "Free-text special requests (e.g. late check-in, extra bed)."
+            },
+            "confirmation_code": {
+              "type": "string",
+              "description": "Booking confirmation code issued by the property."
+            }
+          }
+        }
+      ]
+    },
+    "travel_fulfillment_status": {
+      "description": "Maps abstract fulfillment statuses to travel booking lifecycle stages.",
+      "type": "object",
+      "properties": {
+        "status_mapping": {
+          "type": "object",
+          "description": "How abstract statuses map to booking stages.",
+          "properties": {
+            "accepted": {
+              "const": "Booking confirmed by the property."
+            },
+            "in_progress": {
+              "const": "Guest has checked in; stay is active."
+            },
+            "en_route": {
+              "const": "Not applicable \u2014 unused for bookings."
+            },
+            "completed": {
+              "const": "Guest has checked out."
+            },
+            "cancelled": {
+              "const": "Booking was cancelled per cancellation policy."
+            }
+          }
+        }
+      }
+    },
+    "travel_modifier_groups": {
+      "description": "Typical modifier groups for travel bookings.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "examples": [
+          {
+            "id": "meal-plan",
+            "title": "Meal Plan",
+            "required": false,
+            "max_selections": 1,
+            "options": [
+              {
+                "id": "room-only",
+                "label": "Room Only",
+                "price_delta_cents": 0
+              },
+              {
+                "id": "breakfast",
+                "label": "Breakfast Included",
+                "price_delta_cents": 2500
+              },
+              {
+                "id": "half-board",
+                "label": "Half Board",
+                "price_delta_cents": 5000
+              },
+              {
+                "id": "full-board",
+                "label": "Full Board",
+                "price_delta_cents": 8000
+              }
+            ]
+          },
+          {
+            "id": "extras",
+            "title": "Extras",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 4,
+            "options": [
+              {
+                "id": "airport-transfer",
+                "label": "Airport Transfer",
+                "price_delta_cents": 4000
+              },
+              {
+                "id": "late-checkout",
+                "label": "Late Checkout",
+                "price_delta_cents": 3000
+              },
+              {
+                "id": "extra-bed",
+                "label": "Extra Bed",
+                "price_delta_cents": 2000
+              },
+              {
+                "id": "parking",
+                "label": "Parking",
+                "price_delta_cents": 1500
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

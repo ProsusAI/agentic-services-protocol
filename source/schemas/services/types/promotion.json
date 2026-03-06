@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/promotion.json",
+  "title": "Promotion",
+  "description": "A personalized promotion targeted to a specific user.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique promotion identifier."
+    },
+    "title": {
+      "type": "string",
+      "description": "Display title for the promotion."
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed promotion description."
+    },
+    "type": {
+      "$ref": "./promotion_type.json",
+      "description": "Classification of this promotion."
+    },
+    "discount_percent": {
+      "type": "number",
+      "description": "Discount percentage if applicable.",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "applicable_provider_id": {
+      "type": "string",
+      "description": "Provider this promotion applies to, if scoped."
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration timestamp."
+    },
+    "minimum_order_cents": {
+      "type": "integer",
+      "description": "Minimum order value to qualify, in cents.",
+      "minimum": 0
+    }
+  }
+}

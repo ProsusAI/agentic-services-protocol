@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/fulfillment.json",
+  "title": "Fulfillment",
+  "description": "Fulfillment details for a service order, extending UCP's shipping and pickup options.",
+  "type": "object",
+  "required": [
+    "type",
+    "address",
+    "is_asap"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Fulfillment type identifier.",
+      "enum": [
+        "delivery",
+        "pickup",
+        "ride",
+        "booking",
+        "on_site"
+      ]
+    },
+    "estimated_service_minutes": {
+      "type": "integer",
+      "description": "Estimated service time in minutes from order confirmation.",
+      "minimum": 1
+    },
+    "service_fee_cents": {
+      "type": "integer",
+      "description": "Service fee in cents.",
+      "minimum": 0
+    },
+    "address": {
+      "$ref": "../shared/postal_address.json",
+      "description": "Address for the fulfillment (delivery destination, pickup location, etc.)."
+    },
+    "instructions": {
+      "type": "string",
+      "description": "Special fulfillment instructions (e.g. 'Leave at door', 'Meet at lobby').",
+      "maxLength": 500
+    },
+    "is_asap": {
+      "type": "boolean",
+      "description": "Whether to fulfill as soon as possible vs. a scheduled time.",
+      "default": true
+    },
+    "fees": {
+      "type": "array",
+      "description": "Itemized fees beyond the base price. Lets agents explain cost breakdowns: 'Delivery fee $5, service fee $3.'",
+      "items": {
+        "$ref": "./fee.json"
+      }
+    },
+    "tip": {
+      "$ref": "./tip.json",
+      "description": "Optional gratuity for the service provider or driver."
+    },
+    "scheduled_for": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Requested service time as ISO 8601 datetime. Used when is_asap is false, e.g. 'Deliver at 7pm tonight'."
+    },
+    "available_time_slots": {
+      "type": "array",
+      "description": "Time slots the provider offers. Agent presents these as choices: 'They have slots at 6pm, 6:30pm, or 7pm.'",
+      "items": {
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Slot start time."
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Slot end time."
+          },
+          "is_available": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether this slot is still available for booking."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./domains/food_delivery/profile.json",
+  "title": "Food Delivery Domain Profile",
+  "description": "Constrains ASP abstract schemas for food delivery and grocery marketplaces. Defines cuisine categories, dietary restrictions, and delivery/pickup fulfillment.",
+  "type": "object",
+  "properties": {
+    "service_categories": {
+      "description": "Allowed service_category values for food delivery providers.",
+      "type": "string",
+      "enum": [
+        "italian",
+        "japanese",
+        "chinese",
+        "indian",
+        "thai",
+        "mexican",
+        "american",
+        "mediterranean",
+        "korean",
+        "vietnamese",
+        "pizza",
+        "burgers",
+        "sushi",
+        "healthy",
+        "desserts",
+        "coffee",
+        "bakery",
+        "groceries",
+        "alcohol"
+      ]
+    },
+    "fulfillment_types": {
+      "description": "Fulfillment types applicable to food delivery.",
+      "type": "string",
+      "enum": [
+        "delivery",
+        "pickup",
+        "dine_in"
+      ]
+    },
+    "dietary_tags": {
+      "description": "Dietary restriction tags that can be applied to catalog items.",
+      "type": "string",
+      "enum": [
+        "vegetarian",
+        "vegan",
+        "gluten_free",
+        "halal",
+        "kosher",
+        "dairy_free",
+        "nut_free",
+        "organic",
+        "sugar_free",
+        "keto",
+        "paleo"
+      ]
+    },
+    "spice_levels": {
+      "description": "Standard spice level modifier options.",
+      "type": "string",
+      "enum": [
+        "mild",
+        "medium",
+        "hot",
+        "extra_hot"
+      ]
+    },
+    "portion_sizes": {
+      "description": "Standard portion size modifier options.",
+      "type": "string",
+      "enum": [
+        "small",
+        "regular",
+        "large",
+        "family"
+      ]
+    }
+  },
+  "$defs": {
+    "food_catalog_item": {
+      "description": "A catalog_item extended with food-delivery-specific metadata.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/catalog_item.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "dietary_tags": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/dietary_tags"
+              },
+              "description": "Dietary restriction labels for this item."
+            },
+            "calories": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Approximate calorie count."
+            },
+            "prep_time_minutes": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Estimated preparation time in minutes."
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Free-form tags relevant to this item, e.g. 'fast food', 'gourmet', 'date night', 'romantic'."
+            },
+            "available_for_scheduling": {
+              "type": "boolean",
+              "description": "Whether this item can be part of a scheduled order placed for a later time, a later day, or as a recurring booking."
+            }
+          },
+          "required": [
+            "available_for_scheduling"
+          ]
+        }
+      ]
+    },
+    "food_provider": {
+      "description": "A provider extended with food-delivery-specific metadata.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/provider.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "cuisine_types": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/service_categories"
+              },
+              "description": "Cuisine types offered by this restaurant."
+            },
+            "dietary_options": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/dietary_tags"
+              },
+              "description": "Dietary options the restaurant supports."
+            },
+            "minimum_order_cents": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum order amount for delivery in cents."
+            },
+            "accepts_scheduled_orders": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether the restaurant accepts orders for a future time."
+            }
+          }
+        }
+      ]
+    },
+    "food_fulfillment_status": {
+      "description": "Extends base fulfillment status with granular food-delivery stages. Each granular status maps to one of the 5 base statuses, so agents that only understand the base still work.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/fulfillment_status.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "granular_status": {
+              "type": "string",
+              "description": "Fine-grained food delivery status. Enables agents to say 'Your driver just picked up the food' instead of generic 'in progress'.",
+              "enum": [
+                "accepted",
+                "preparing",
+                "ready_for_pickup",
+                "assigning_driver",
+                "driver_assigned",
+                "driver_at_restaurant",
+                "en_route",
+                "driver_arriving",
+                "delivered",
+                "cancelled"
+              ]
+            },
+            "granular_to_base_mapping": {
+              "type": "object",
+              "description": "Reference mapping from granular statuses to base statuses.",
+              "properties": {
+                "accepted": {
+                  "const": "accepted"
+                },
+                "preparing": {
+                  "const": "in_progress"
+                },
+                "ready_for_pickup": {
+                  "const": "in_progress"
+                },
+                "assigning_driver": {
+                  "const": "in_progress"
+                },
+                "driver_assigned": {
+                  "const": "in_progress"
+                },
+                "driver_at_restaurant": {
+                  "const": "in_progress"
+                },
+                "en_route": {
+                  "const": "en_route"
+                },
+                "driver_arriving": {
+                  "const": "en_route"
+                },
+                "delivered": {
+                  "const": "completed"
+                },
+                "cancelled": {
+                  "const": "cancelled"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "food_item_customization": {
+      "description": "Extends base item customization with food-specific substitution preferences. Enables agents to handle 'out of Coke, want Pepsi instead?'",
+      "allOf": [
+        {
+          "$ref": "../../services/types/item_customization.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "substitution_allowed": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether the provider can substitute this item if unavailable."
+            },
+            "substitution_preference": {
+              "type": "string",
+              "description": "What to do if the item is unavailable.",
+              "enum": [
+                "similar_item",
+                "refund",
+                "contact_me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "common_modifier_groups": {
+      "description": "Typical modifier groups in food delivery.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "examples": [
+          {
+            "id": "spice-level",
+            "title": "Spice Level",
+            "required": false,
+            "max_selections": 1,
+            "options": [
+              {
+                "id": "mild",
+                "label": "Mild",
+                "price_delta_cents": 0
+              },
+              {
+                "id": "medium",
+                "label": "Medium",
+                "price_delta_cents": 0
+              },
+              {
+                "id": "hot",
+                "label": "Hot",
+                "price_delta_cents": 0
+              },
+              {
+                "id": "extra-hot",
+                "label": "Extra Hot",
+                "price_delta_cents": 0
+              }
+            ]
+          },
+          {
+            "id": "size",
+            "title": "Size",
+            "required": true,
+            "max_selections": 1,
+            "options": [
+              {
+                "id": "small",
+                "label": "Small",
+                "price_delta_cents": 0
+              },
+              {
+                "id": "regular",
+                "label": "Regular",
+                "price_delta_cents": 200
+              },
+              {
+                "id": "large",
+                "label": "Large",
+                "price_delta_cents": 400
+              }
+            ]
+          },
+          {
+            "id": "toppings",
+            "title": "Extra Toppings",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 5,
+            "options": [
+              {
+                "id": "cheese",
+                "label": "Extra Cheese",
+                "price_delta_cents": 150
+              },
+              {
+                "id": "mushrooms",
+                "label": "Mushrooms",
+                "price_delta_cents": 100
+              },
+              {
+                "id": "olives",
+                "label": "Olives",
+                "price_delta_cents": 100
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

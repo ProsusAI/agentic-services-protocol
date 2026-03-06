@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/modifier_group.json",
+  "title": "Modifier Group",
+  "description": "A group of modifier options for a catalog item (e.g. 'Size', 'Toppings').",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "options"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique group identifier."
+    },
+    "title": {
+      "type": "string",
+      "description": "Display title for this modifier group."
+    },
+    "required": {
+      "type": "boolean",
+      "description": "Whether the user must select an option from this group.",
+      "default": false
+    },
+    "min_selections": {
+      "type": "integer",
+      "description": "Minimum number of options the user must select.",
+      "default": 0,
+      "minimum": 0
+    },
+    "max_selections": {
+      "type": "integer",
+      "description": "Maximum number of options the user may select.",
+      "default": 1,
+      "minimum": 1
+    },
+    "options": {
+      "type": "array",
+      "description": "Available options in this group.",
+      "items": {
+        "$ref": "./modifier_option.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/order_tracking.json",
+  "name": "dev.asp.services.order_tracking",
+  "version": "2026-02-19",
+  "extends": "dev.ucp.shopping.order",
+  "title": "Order Tracking Extension",
+  "description": "Extends UCP order with granular fulfillment status tracking and push-model updates.",
+  "type": "object",
+  "$defs": {
+    "tracked_order": {
+      "description": "UCP order extended with fulfillment-specific status and ETA.",
+      "allOf": [
+        {
+          "$ref": "https://ucp.dev/schemas/shopping/order.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fulfillment_status": {
+              "$ref": "./types/fulfillment_status.json",
+              "description": "Current fulfillment status and tracking information."
+            }
+          }
+        }
+      ]
+    },
+    "status_update_event": {
+      "$ref": "./types/status_update_event.json"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/promotion_type.json",
+  "title": "Promotion Type",
+  "description": "Classification of personalized promotions.",
+  "type": "string",
+  "enum": [
+    "discount",
+    "reorder",
+    "category",
+    "loyalty"
+  ]
+}

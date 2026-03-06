@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./domains/ride_hailing/profile.json",
+  "title": "Ride Hailing Domain Profile",
+  "description": "Constrains ASP abstract schemas for ride-hailing and mobility marketplaces. Defines vehicle categories, ride fulfillment, and real-time tracking.",
+  "type": "object",
+  "properties": {
+    "service_categories": {
+      "description": "Allowed service_category values for ride-hailing providers.",
+      "type": "string",
+      "enum": [
+        "economy",
+        "sedan",
+        "suv",
+        "luxury",
+        "van",
+        "motorcycle",
+        "auto_rickshaw",
+        "pool",
+        "xl",
+        "electric",
+        "accessible"
+      ]
+    },
+    "fulfillment_types": {
+      "description": "Fulfillment types applicable to ride hailing.",
+      "type": "string",
+      "enum": [
+        "ride"
+      ]
+    },
+    "vehicle_features": {
+      "description": "Optional vehicle feature tags.",
+      "type": "string",
+      "enum": [
+        "air_conditioning",
+        "wifi",
+        "child_seat",
+        "wheelchair_accessible",
+        "pet_friendly",
+        "luggage_space",
+        "quiet_ride",
+        "premium_audio"
+      ]
+    }
+  },
+  "$defs": {
+    "ride_catalog_item": {
+      "description": "A catalog_item representing a ride option. In ride hailing, each 'item' is a vehicle class with dynamic pricing.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/catalog_item.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "vehicle_category": {
+              "$ref": "#/properties/service_categories",
+              "description": "Vehicle class for this ride option."
+            },
+            "max_passengers": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum passenger capacity."
+            },
+            "max_luggage_pieces": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Maximum luggage pieces."
+            },
+            "vehicle_features": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/vehicle_features"
+              },
+              "description": "Features available in this vehicle class."
+            },
+            "surge_multiplier": {
+              "type": "number",
+              "minimum": 1.0,
+              "default": 1.0,
+              "description": "Dynamic pricing surge multiplier. 1.0 = no surge."
+            },
+            "estimated_arrival_minutes": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Estimated minutes until the nearest driver arrives."
+            },
+            "available_for_scheduling": {
+              "type": "boolean",
+              "description": "Whether this ride option can be scheduled for a later time, a later day, or as a recurring booking."
+            }
+          }
+        }
+      ]
+    },
+    "ride_provider": {
+      "description": "A provider extended with ride-hailing-specific metadata.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/provider.json"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "vehicle_categories": {
+              "type": "array",
+              "items": {
+                "$ref": "#/properties/service_categories"
+              },
+              "description": "Vehicle classes offered by this provider."
+            },
+            "coverage_area": {
+              "type": "object",
+              "description": "Geographic area the provider covers.",
+              "properties": {
+                "center_latitude": {
+                  "type": "number",
+                  "minimum": -90,
+                  "maximum": 90
+                },
+                "center_longitude": {
+                  "type": "number",
+                  "minimum": -180,
+                  "maximum": 180
+                },
+                "radius_km": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Service radius in kilometres."
+                }
+              },
+              "required": [
+                "center_latitude",
+                "center_longitude",
+                "radius_km"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ride_fulfillment": {
+      "description": "Extends the abstract fulfillment type with ride-specific fields.",
+      "allOf": [
+        {
+          "$ref": "../../services/types/fulfillment.json"
+        },
+        {
+          "type": "object",
+          "required": [
+            "pickup_location",
+            "dropoff_location"
+          ],
+          "properties": {
+            "pickup_location": {
+              "$ref": "../../services/shared/postal_address.json",
+              "description": "Where the rider is picked up."
+            },
+            "dropoff_location": {
+              "$ref": "../../services/shared/postal_address.json",
+              "description": "Where the rider is dropped off."
+            },
+            "estimated_distance_km": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Estimated trip distance in kilometres."
+            },
+            "route_polyline": {
+              "type": "string",
+              "description": "Encoded polyline of the estimated route."
+            }
+          }
+        }
+      ]
+    },
+    "ride_fulfillment_status": {
+      "description": "Maps abstract fulfillment statuses to ride-hailing lifecycle stages.",
+      "type": "object",
+      "properties": {
+        "status_mapping": {
+          "type": "object",
+          "description": "How abstract statuses map to ride-hailing stages.",
+          "properties": {
+            "accepted": {
+              "const": "Driver has accepted the ride request."
+            },
+            "in_progress": {
+              "const": "Driver is en route to the pickup location."
+            },
+            "en_route": {
+              "const": "Rider is in the vehicle; trip is underway."
+            },
+            "completed": {
+              "const": "Rider has been dropped off at the destination."
+            },
+            "cancelled": {
+              "const": "Ride was cancelled by driver or rider."
+            }
+          }
+        }
+      }
+    },
+    "ride_modifier_groups": {
+      "description": "Typical modifier groups in ride hailing.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "examples": [
+          {
+            "id": "ride-extras",
+            "title": "Ride Extras",
+            "required": false,
+            "min_selections": 0,
+            "max_selections": 3,
+            "options": [
+              {
+                "id": "child-seat",
+                "label": "Child Seat",
+                "price_delta_cents": 500
+              },
+              {
+                "id": "quiet-ride",
+                "label": "Quiet Ride",
+                "price_delta_cents": 0
+              },
+              {
+                "id": "extra-stop",
+                "label": "Extra Stop",
+                "price_delta_cents": 300
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

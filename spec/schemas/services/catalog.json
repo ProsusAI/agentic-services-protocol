@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/catalog.json",
+  "name": "dev.asp.services.catalog",
+  "version": "2026-02-19",
+  "title": "Extended Catalog",
+  "description": "Retrieve provider catalogs with full item details, modifiers, and sections.",
+  "type": "object",
+  "$defs": {
+    "catalog_request": {
+      "type": "object",
+      "description": "Request to retrieve a provider's catalog.",
+      "required": [
+        "provider_id"
+      ],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "Identifier of the provider whose catalog to retrieve."
+        }
+      }
+    },
+    "catalog_response": {
+      "description": "The provider's complete catalog.",
+      "$ref": "./types/service_catalog.json"
+    },
+    "reorder_request": {
+      "type": "object",
+      "description": "Request to reorder from a previous order. Returns current availability and pricing for the original items.",
+      "required": [
+        "order_id",
+        "provider_id"
+      ],
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The previous order to reorder from."
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "The provider of the original order."
+        },
+        "scheduled_for": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional scheduled time for the reorder. Integrates with available_for_scheduling on items."
+        }
+      }
+    },
+    "reorder_response": {
+      "type": "object",
+      "description": "Current availability and pricing for items from the original order.",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Items from the original order with current availability and pricing.",
+          "items": {
+            "$ref": "./types/catalog_item.json"
+          }
+        },
+        "unavailable_items": {
+          "type": "array",
+          "description": "Items from the original order that are no longer available.",
+          "items": {
+            "type": "object",
+            "required": [
+              "item_id",
+              "title",
+              "reason"
+            ],
+            "properties": {
+              "item_id": {
+                "type": "string",
+                "description": "Identifier of the unavailable item."
+              },
+              "title": {
+                "type": "string",
+                "description": "Display name of the unavailable item."
+              },
+              "reason": {
+                "type": "string",
+                "description": "Why the item is unavailable, e.g. 'Out of stock', 'No longer on menu', 'Provider closed'."
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

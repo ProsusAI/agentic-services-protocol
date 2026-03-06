@@ -1,0 +1,116 @@
+{
+  "name": "Agentic Services Protocol Agent",
+  "description": "A2A-compatible agent for the Agentic Services Protocol (ASP). Exposes high-level skills for provider discovery, catalog browsing, checkout and fulfillment, order tracking, and personalization across live service marketplaces.",
+  "url": "https://api.example.com/asp/a2a",
+  "version": "2026-02-19",
+  "provider": {
+    "organization": "Prosus",
+    "url": "https://github.com/ProsusAI/agentic-services-protocol"
+  },
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": true,
+    "streamingTransport": {
+      "protocol": "websocket",
+      "asyncApiSpec": "https://example.com/asp/asyncapi.yaml",
+      "endpoint": "wss://api.example.com/asp/v1/ws"
+    }
+  },
+  "defaultInputModes": ["application/json"],
+  "defaultOutputModes": ["application/json"],
+  "skills": [
+    {
+      "id": "provider_discovery",
+      "name": "Provider Discovery",
+      "description": "Search for providers by location, category, rating, and availability. Returns a paginated list of matching providers with details like address, operating hours, and ratings.",
+      "tags": ["discovery", "search", "providers", "location"],
+      "examples": [
+        "Find coffee shops near me",
+        "Search for restaurants in downtown with 4+ star rating",
+        "Show available providers within 5km that offer delivery"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "catalog_browsing",
+      "name": "Catalog Browsing",
+      "description": "Browse a provider's complete catalog including sections, items, modifiers, and pricing. Supports item-level details with customization options.",
+      "tags": ["catalog", "menu", "items", "modifiers", "pricing"],
+      "examples": [
+        "Show me the menu for provider X",
+        "What customization options are available for item Y?",
+        "List all items in the desserts section"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "checkout_and_fulfillment",
+      "name": "Checkout & Fulfillment",
+      "description": "Create and manage checkouts with line items, fulfillment details, item customization, and loyalty discounts. Supports creating, updating, and completing checkouts.",
+      "tags": ["checkout", "fulfillment", "order", "payment", "loyalty"],
+      "examples": [
+        "Create a checkout with 2 lattes and delivery to 123 Main St",
+        "Add special instructions to my order",
+        "Complete checkout and process payment"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "order_tracking",
+      "name": "Order Tracking",
+      "description": "Get fulfillment status, estimated time of arrival, and delivery agent location for active orders via polling or webhooks.",
+      "tags": ["tracking", "status", "eta", "delivery"],
+      "examples": [
+        "What is the status of my order?",
+        "What is the ETA for order 12345?"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "live_tracking",
+      "name": "Live Tracking Stream",
+      "description": "Open a persistent WebSocket stream for continuous agent location updates during delivery. Provides GPS coordinates every 3-5 seconds during the en_route phase, enabling live map rendering in chat. Backed by the AsyncAPI WebSocket binding (dev.asp.services.streaming).",
+      "tags": ["streaming", "live", "location", "map", "real-time", "websocket"],
+      "examples": [
+        "Where is my driver right now?",
+        "Show me the delivery on a live map",
+        "Track the delivery agent for my current order"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    },
+    {
+      "id": "personalization",
+      "name": "Personalization",
+      "description": "Access user profiles, order history, loyalty status, and personalized promotions. Retrieve preferences, past orders, and targeted offers.",
+      "tags": ["profile", "preferences", "loyalty", "promotions", "history"],
+      "examples": [
+        "Show my profile and loyalty status",
+        "What promotions are available for me?",
+        "Get my order history"
+      ],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"]
+    }
+  ],
+  "securitySchemes": {
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "description": "Bearer token authentication."
+    }
+  },
+  "security": [
+    { "bearerAuth": [] }
+  ],
+  "interfaces": [
+    {
+      "transport": "jsonrpc",
+      "url": "https://api.example.com/asp/a2a"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/price_level.json",
+  "title": "Price Level",
+  "description": "Merchant price tier classification.",
+  "type": "string",
+  "enum": [
+    "budget",
+    "moderate",
+    "premium",
+    "luxury"
+  ]
+}

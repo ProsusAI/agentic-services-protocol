@@ -1,0 +1,14 @@
+# Default owners for everything in the repo
+* @pranavsrv10 @ccaratelli
+
+# Schemas
+source/schemas/ @pranavsrv10 @ccaratelli
+spec/schemas/ @pranavsrv10 @ccaratelli
+
+# Transport bindings
+source/services/ @pranavsrv10 @ccaratelli
+spec/services/ @pranavsrv10 @ccaratelli
+
+# Documentation
+docs/ @pranavsrv10 @ccaratelli
+mkdocs.yml @pranavsrv10 @ccaratelli

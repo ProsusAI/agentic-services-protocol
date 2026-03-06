@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/order_history_entry.json",
+  "title": "Order History Entry",
+  "description": "A single entry in the user's order history.",
+  "type": "object",
+  "required": [
+    "order_id",
+    "provider_id",
+    "ordered_at"
+  ],
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "description": "Unique order identifier."
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Identifier of the provider."
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Display name of the provider."
+    },
+    "items": {
+      "type": "array",
+      "description": "Items ordered.",
+      "items": {
+        "type": "object",
+        "required": [
+          "item_id",
+          "title",
+          "quantity"
+        ],
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "ordered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the order was placed."
+    },
+    "total_cents": {
+      "type": "integer",
+      "description": "Total order amount in cents."
+    }
+  }
+}

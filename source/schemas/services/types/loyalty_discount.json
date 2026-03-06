@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/loyalty_discount.json",
+  "title": "Loyalty Discount",
+  "description": "Tier-based loyalty discount applied at the cart level.",
+  "type": "object",
+  "properties": {
+    "loyalty_tier": {
+      "type": "string",
+      "description": "User's loyalty tier as defined by the marketplace, e.g. 'gold', 'premium', 'VIP', 'level_3'."
+    },
+    "loyalty_discount_percent": {
+      "type": "number",
+      "description": "Discount percentage applied based on loyalty tier.",
+      "minimum": 0,
+      "maximum": 100
+    }
+  }
+}

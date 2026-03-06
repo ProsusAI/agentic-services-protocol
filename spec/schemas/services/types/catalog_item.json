@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/catalog_item.json",
+  "title": "Catalog Item",
+  "description": "A single item in a provider's catalog with price and modifiers.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "description",
+    "price_cents",
+    "image",
+    "is_available",
+    "is_featured"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique item identifier."
+    },
+    "title": {
+      "type": "string",
+      "description": "Display name of the item."
+    },
+    "description": {
+      "type": "string",
+      "description": "Item description."
+    },
+    "price_cents": {
+      "type": "integer",
+      "description": "Base price in cents.",
+      "minimum": 0
+    },
+    "image": {
+      "$ref": "../shared/image.json",
+      "description": "Item image."
+    },
+    "modifier_groups": {
+      "type": "array",
+      "description": "Available customization groups for this item.",
+      "items": {
+        "$ref": "./modifier_group.json"
+      }
+    },
+    "is_available": {
+      "type": "boolean",
+      "description": "Whether this item is currently available for ordering.",
+      "default": true
+    },
+    "is_featured": {
+      "type": "boolean",
+      "description": "Whether this item is currently featured."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Free-form tags relevant to this item, e.g. 'fast food', 'gourmet', 'date night', 'romantic'."
+    },
+    "images": {
+      "type": "array",
+      "description": "Multiple images for different contexts (thumbnail for list view, hero for detail page, etc.).",
+      "items": {
+        "$ref": "../shared/image.json"
+      }
+    }
+  }
+}

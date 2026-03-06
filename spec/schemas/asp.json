@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./asp.json",
+  "title": "ASP Protocol Metadata",
+  "description": "Defines the top-level protocol metadata used in discovery profiles and capability responses.",
+  "type": "object",
+  "required": [
+    "version",
+    "services",
+    "capabilities"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Protocol version in YYYY-MM-DD format.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "services": {
+      "type": "object",
+      "description": "Map of service name to service definition.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Service version in YYYY-MM-DD format."
+          },
+          "spec": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the human-readable spec page."
+          },
+          "rest": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the OpenAPI schema."
+              },
+              "endpoint": {
+                "type": "string",
+                "format": "uri",
+                "description": "Base URL for the REST API."
+              }
+            }
+          },
+          "mcp": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the OpenRPC specification (JSON format) defining available MCP tools."
+              },
+              "endpoint": {
+                "type": "string",
+                "format": "uri",
+                "description": "MCP server endpoint."
+              }
+            }
+          },
+          "a2a": {
+            "type": "object",
+            "properties": {
+              "agentCard": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the A2A agent card (JSON)."
+              },
+              "endpoint": {
+                "type": "string",
+                "format": "uri",
+                "description": "A2A JSON-RPC endpoint."
+              }
+            }
+          },
+          "websocket": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the AsyncAPI specification defining WebSocket channels."
+              },
+              "endpoint": {
+                "type": "string",
+                "format": "uri",
+                "description": "WebSocket base URL (wss://)."
+              }
+            }
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Array of capability declarations.",
+      "items": {
+        "$ref": "./capability.json"
+      }
+    }
+  }
+}

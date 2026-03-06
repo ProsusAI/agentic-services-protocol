@@ -1,0 +1,66 @@
+{
+  "asp": {
+    "version": "2026-02-19",
+    "services": {
+      "live_services": {
+        "version": "2026-02-19",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/overview",
+        "rest": {
+          "schema": "https://api.example.com/asp/openapi.yaml",
+          "endpoint": "https://api.example.com/asp/v1"
+        },
+        "mcp": {
+          "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/services/live_services/mcp_openrpc.json",
+          "endpoint": "https://api.example.com/asp/mcp"
+        }
+      }
+    },
+    "capabilities": [
+      {
+        "name": "dev.asp.services.discovery",
+        "version": "2026-02-19",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/discovery",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/discovery.json"
+      },
+      {
+        "name": "dev.asp.services.catalog",
+        "version": "2026-02-19",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/catalog",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/catalog.json"
+      },
+      {
+        "name": "dev.asp.services.fulfillment",
+        "version": "2026-02-19",
+        "extends": "dev.ucp.shopping.checkout",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/fulfillment",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/fulfillment.json"
+      },
+      {
+        "name": "dev.asp.services.order_tracking",
+        "version": "2026-02-19",
+        "extends": "dev.ucp.shopping.order",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/order-tracking",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/order_tracking.json"
+      },
+      {
+        "name": "dev.asp.services.personalization",
+        "version": "2026-02-19",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/personalization",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/personalization.json"
+      },
+      {
+        "name": "dev.asp.services.streaming",
+        "version": "2026-02-19",
+        "extends": "dev.asp.services.order_tracking",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/order-tracking#live-streaming",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/streaming.json"
+      },
+      {
+        "name": "dev.asp.services.reviews",
+        "version": "2026-02-19",
+        "spec": "https://prosusai.github.io/agentic-services-protocol/specification/reviews",
+        "schema": "https://raw.githubusercontent.com/ProsusAI/agentic-services-protocol/main/spec/schemas/services/reviews.json"
+      }
+    ]
+  }
+}

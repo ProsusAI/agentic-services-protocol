@@ -1,0 +1,274 @@
+asyncapi: 3.0.0
+info:
+  title: Agentic Services Protocol — Live Tracking Stream
+  version: "2026-02-19"
+  description: |
+    WebSocket binding for real-time order tracking in ASP.
+    Provides continuous agent location updates, status transition events,
+    and heartbeat keep-alives over a persistent connection.
+
+    This spec complements the REST polling endpoint (GET /orders/{order_id}/tracking)
+    and the webhook push model (status_update_event). Use WebSocket when you need
+    continuous location data (e.g. rendering a live delivery map in chat).
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: ASP Authors
+    url: https://github.com/ProsusAI/agentic-services-protocol
+
+servers:
+  production:
+    host: api.example.com
+    pathname: /asp/v1/ws
+    protocol: wss
+    description: WebSocket server for live order tracking.
+    security:
+      - type: http
+        scheme: bearer
+        description: |
+          Bearer token authentication. Because WebSocket handshake does not
+          support custom HTTP headers in all clients, authentication is performed
+          via the first message (subscribe action) rather than the Upgrade request.
+
+channels:
+  orderTrackingStream:
+    address: /orders/{order_id}/tracking/stream
+    title: Order Tracking Stream
+    description: |
+      Persistent channel for live tracking of a single order. The client subscribes
+      by sending a subscribe message with the order_id and auth token. The server
+      responds with the current state snapshot, then streams updates until the order
+      reaches a terminal status (completed or cancelled).
+
+      ## Connection Lifecycle
+
+      1. Client opens WebSocket to `wss://<host>/asp/v1/ws`
+      2. Client sends a `subscribe` message with `order_id` and `token`
+      3. Server validates the token and order ownership
+      4. Server sends a `status_changed` event with the current order state (snapshot)
+      5. Server streams `location_update` events every 3-5s during `en_route` phase
+      6. Server sends `status_changed` on each status transition
+      7. Server sends `heartbeat` every 30s to keep the connection alive
+      8. On terminal status (`completed` or `cancelled`), server sends a final
+         `status_changed` event and closes the connection with code 1000 (Normal Closure)
+
+      ## Reconnection
+
+      If the connection drops, the client should:
+      1. Wait with exponential backoff (1s, 2s, 4s, max 30s)
+      2. Re-open the WebSocket and send a new `subscribe` message
+      3. The server will resend the current state snapshot on re-subscribe
+
+      No events are buffered server-side during disconnection. The client
+      receives the latest state on reconnect, not missed events.
+
+      ## When Location Updates Are Sent
+
+      `location_update` events are only sent when:
+      - The order status is `en_route` (agent is moving toward the customer)
+      - The marketplace supports live agent tracking (opt-in per marketplace)
+
+      During other phases (`accepted`, `in_progress`), only `status_changed`
+      and `heartbeat` events are sent.
+    parameters:
+      order_id:
+        description: Identifier of the order to track.
+    messages:
+      subscribeRequest:
+        $ref: "#/components/messages/subscribe"
+      unsubscribeRequest:
+        $ref: "#/components/messages/unsubscribe"
+      locationUpdate:
+        $ref: "#/components/messages/locationUpdate"
+      statusChanged:
+        $ref: "#/components/messages/statusChanged"
+      heartbeat:
+        $ref: "#/components/messages/heartbeat"
+      error:
+        $ref: "#/components/messages/error"
+
+operations:
+  subscribe:
+    action: send
+    channel:
+      $ref: "#/channels/orderTrackingStream"
+    summary: Subscribe to order tracking
+    description: |
+      Client sends this to start receiving tracking events for an order.
+      Must be the first message after connection. Includes the bearer token
+      for authentication.
+    messages:
+      - $ref: "#/channels/orderTrackingStream/messages/subscribeRequest"
+
+  unsubscribe:
+    action: send
+    channel:
+      $ref: "#/channels/orderTrackingStream"
+    summary: Unsubscribe from order tracking
+    description: Client sends this to stop receiving events. Server will close the connection.
+    messages:
+      - $ref: "#/channels/orderTrackingStream/messages/unsubscribeRequest"
+
+  receiveLocationUpdate:
+    action: receive
+    channel:
+      $ref: "#/channels/orderTrackingStream"
+    summary: Receive live agent location
+    description: |
+      Continuous GPS updates during the en_route phase.
+      Sent every 3-5 seconds. Contains lat/lng, optional heading and speed,
+      and updated ETA. Use this to render a moving marker on a map.
+    messages:
+      - $ref: "#/channels/orderTrackingStream/messages/locationUpdate"
+
+  receiveStatusChanged:
+    action: receive
+    channel:
+      $ref: "#/channels/orderTrackingStream"
+    summary: Receive status transition
+    description: |
+      Sent when the order moves between lifecycle stages
+      (accepted, in_progress, en_route, completed, cancelled).
+      Also sent immediately after subscribe as a state snapshot.
+    messages:
+      - $ref: "#/channels/orderTrackingStream/messages/statusChanged"
+
+  receiveHeartbeat:
+    action: receive
+    channel:
+      $ref: "#/channels/orderTrackingStream"
+    summary: Receive heartbeat keep-alive
+    description: Sent every 30 seconds. If no heartbeat is received within 60 seconds, the client should assume the connection is dead and reconnect.
+    messages:
+      - $ref: "#/channels/orderTrackingStream/messages/heartbeat"
+
+  receiveError:
+    action: receive
+    channel:
+      $ref: "#/channels/orderTrackingStream"
+    summary: Receive error
+    description: Sent when authentication fails, the order is not found, or the client is not authorized to track this order. The server closes the connection after sending this.
+    messages:
+      - $ref: "#/channels/orderTrackingStream/messages/error"
+
+components:
+  messages:
+    subscribe:
+      name: subscribe
+      title: Subscribe Request
+      summary: Start tracking an order.
+      contentType: application/json
+      payload:
+        $ref: "../../schemas/services/streaming.json#/$defs/stream_subscribe"
+
+    unsubscribe:
+      name: unsubscribe
+      title: Unsubscribe Request
+      summary: Stop tracking an order.
+      contentType: application/json
+      payload:
+        $ref: "../../schemas/services/streaming.json#/$defs/stream_unsubscribe"
+
+    locationUpdate:
+      name: locationUpdate
+      title: Location Update
+      summary: Continuous agent location and ETA.
+      contentType: application/json
+      payload:
+        $ref: "../../schemas/services/types/tracking_stream_event.json"
+      examples:
+        - name: driverLocationUpdate
+          summary: Driver location during food delivery
+          payload:
+            event_type: location_update
+            order_id: order-12345
+            payload:
+              status: en_route
+              agent_location:
+                latitude: 37.7751
+                longitude: -122.4180
+                heading: 45.0
+                speed_kmh: 28.5
+              estimated_service_minutes: 8
+              updated_at: "2026-02-19T12:45:03Z"
+            timestamp: "2026-02-19T12:45:03Z"
+
+    statusChanged:
+      name: statusChanged
+      title: Status Changed
+      summary: Order status transition.
+      contentType: application/json
+      payload:
+        $ref: "../../schemas/services/types/tracking_stream_event.json"
+      examples:
+        - name: orderEnRoute
+          summary: Order picked up, driver heading to customer
+          payload:
+            event_type: status_changed
+            order_id: order-12345
+            payload:
+              event_type: order.status_updated
+              order_id: order-12345
+              status:
+                order_id: order-12345
+                status: en_route
+                estimated_service_minutes: 12
+                updated_at: "2026-02-19T12:40:00Z"
+                agent_location:
+                  latitude: 37.7830
+                  longitude: -122.4100
+              timestamp: "2026-02-19T12:40:00Z"
+            timestamp: "2026-02-19T12:40:00Z"
+
+    heartbeat:
+      name: heartbeat
+      title: Heartbeat
+      summary: Keep-alive ping.
+      contentType: application/json
+      payload:
+        $ref: "../../schemas/services/types/tracking_stream_event.json"
+      examples:
+        - name: heartbeatExample
+          payload:
+            event_type: heartbeat
+            timestamp: "2026-02-19T12:45:30Z"
+            payload:
+              server_time: "2026-02-19T12:45:30Z"
+
+    error:
+      name: error
+      title: Error
+      summary: Authentication or authorization error. Connection will be closed after this message.
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - event_type
+          - error
+          - timestamp
+        properties:
+          event_type:
+            type: string
+            const: error
+          error:
+            type: object
+            required:
+              - code
+              - message
+            properties:
+              code:
+                type: string
+                description: Machine-readable error code.
+                enum:
+                  - auth_failed
+                  - order_not_found
+                  - not_authorized
+                  - order_terminated
+                  - internal_error
+              message:
+                type: string
+                description: Human-readable error message.
+          timestamp:
+            type: string
+            format: date-time

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/item_customization.json",
+  "title": "Item Customization",
+  "description": "Per-item customization extending UCP line items with special instructions and modifier selections.",
+  "type": "object",
+  "properties": {
+    "special_instructions": {
+      "type": "string",
+      "description": "Free-text instructions for this item.",
+      "maxLength": 500
+    },
+    "modifiers": {
+      "type": "array",
+      "description": "Selected modifier option IDs from the item's modifier groups.",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

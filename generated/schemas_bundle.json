@@ -1,0 +1,2778 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./schemas/bundle.json",
+  "title": "ASP Schema Bundle",
+  "description": "Resolved bundle of all ASP schemas for code generation.",
+  "type": "object",
+  "$defs": {
+    "Discovery__search_request": {
+      "type": "object",
+      "description": "Request to search for providers matching the given filters.",
+      "required": [
+        "filters"
+      ],
+      "properties": {
+        "filters": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "./services/types/provider_filter.json",
+          "title": "Provider Filter",
+          "description": "Filter criteria for provider discovery searches.",
+          "type": "object",
+          "required": [
+            "location"
+          ],
+          "properties": {
+            "location": {
+              "$ref": "#/$defs/Personalization__profile_response/properties/default_address",
+              "description": "Location to search around."
+            },
+            "category": {
+              "$ref": "#/$defs/Personalization__profile_response/properties/preferred_categories/items",
+              "description": "Filter by service category."
+            },
+            "is_open_now": {
+              "type": "boolean",
+              "description": "Only return providers currently open."
+            },
+            "min_rating": {
+              "type": "number",
+              "description": "Minimum provider rating.",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "max_service_minutes": {
+              "type": "integer",
+              "description": "Maximum acceptable service time in minutes.",
+              "minimum": 1
+            },
+            "price_level": {
+              "description": "Filter by price tier.",
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "./services/types/price_level.json",
+              "title": "Price Level",
+              "type": "string",
+              "enum": [
+                "budget",
+                "moderate",
+                "premium",
+                "luxury"
+              ]
+            },
+            "minimum_order_cents": {
+              "type": "integer",
+              "description": "Minimum order amount in cents.",
+              "minimum": 0
+            },
+            "query": {
+              "type": "string",
+              "description": "Free-text search query."
+            },
+            "is_promoted": {
+              "type": "boolean",
+              "description": "Whether the provider is currently being promoted."
+            }
+          }
+        },
+        "sort_by": {
+          "type": "string",
+          "description": "Dimension to sort results by.",
+          "enum": [
+            "relevance",
+            "rating",
+            "distance",
+            "price_low",
+            "price_high",
+            "estimated_time",
+            "newest"
+          ],
+          "default": "relevance"
+        },
+        "sort_order": {
+          "type": "string",
+          "description": "Sort direction.",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "default": "desc"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Page number to retrieve."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "description": "Number of providers per page."
+        }
+      }
+    },
+    "Discovery__search_response": {
+      "type": "object",
+      "description": "Paginated list of providers matching the search criteria.",
+      "required": [
+        "providers"
+      ],
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/provider.json",
+            "title": "Provider",
+            "description": "A service provider available for discovery and ordering.",
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "category",
+              "rating",
+              "estimated_service_minutes",
+              "service_fee_cents",
+              "minimum_order_cents",
+              "price_level",
+              "is_open_now",
+              "image",
+              "address",
+              "is_promoted",
+              "tags"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique provider identifier."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name of the provider."
+              },
+              "category": {
+                "$ref": "#/$defs/Personalization__profile_response/properties/preferred_categories/items",
+                "description": "Primary service category classification."
+              },
+              "rating": {
+                "type": "number",
+                "description": "Average provider rating.",
+                "minimum": 0,
+                "maximum": 5
+              },
+              "rating_count": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Number of ratings/reviews. Gives agents confidence to recommend: '4.8 stars from 2,300 reviews'."
+              },
+              "estimated_service_minutes": {
+                "type": "integer",
+                "description": "Estimated service time in minutes."
+              },
+              "service_fee_cents": {
+                "type": "integer",
+                "description": "Service fee in cents.",
+                "minimum": 0
+              },
+              "minimum_order_cents": {
+                "type": "integer",
+                "description": "Minimum order amount in cents.",
+                "minimum": 0
+              },
+              "price_level": {
+                "$ref": "#/$defs/Discovery__search_request/properties/filters/properties/price_level",
+                "description": "Price tier classification."
+              },
+              "is_open_now": {
+                "type": "boolean",
+                "description": "Whether the provider is currently accepting orders."
+              },
+              "image": {
+                "$ref": "#/$defs/Discovery__search_response/properties/providers/items/properties/images/items",
+                "description": "Provider logo or hero image."
+              },
+              "address": {
+                "$ref": "#/$defs/Personalization__profile_response/properties/default_address",
+                "description": "Physical location of the provider."
+              },
+              "is_promoted": {
+                "type": "boolean",
+                "description": "Whether the provider is currently being promoted."
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Free-form tags relevant to this provider, e.g. 'fast food', 'gourmet', 'date night', 'romantic'."
+              },
+              "operating_hours": {
+                "type": "array",
+                "description": "Weekly operating schedule. Omit if provider is always available or schedule is unknown.",
+                "items": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "$id": "./services/types/operating_hours_entry.json",
+                  "title": "Operating Hours Entry",
+                  "description": "A single day's operating window for a provider.",
+                  "type": "object",
+                  "required": [
+                    "day",
+                    "open_time",
+                    "close_time"
+                  ],
+                  "properties": {
+                    "day": {
+                      "type": "string",
+                      "enum": [
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday",
+                        "sunday"
+                      ],
+                      "description": "Day of the week."
+                    },
+                    "open_time": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                      "description": "Opening time in HH:MM (24-hour local time)."
+                    },
+                    "close_time": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                      "description": "Closing time in HH:MM (24-hour local time). Use '23:59' for midnight close."
+                    }
+                  }
+                }
+              },
+              "next_opens_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "ISO 8601 datetime when a currently closed provider next opens. Allows agents to say 'opens at 11am tomorrow' without parsing the full schedule."
+              },
+              "images": {
+                "type": "array",
+                "description": "Multiple images for different contexts (thumbnail for search, banner for detail page, etc.).",
+                "items": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "$id": "./services/shared/image.json",
+                  "title": "Image",
+                  "description": "Image reference with URL and optional dimensions.",
+                  "type": "object",
+                  "required": [
+                    "url"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "URL of the image."
+                    },
+                    "alt_text": {
+                      "type": "string",
+                      "description": "Accessible alt text for the image."
+                    },
+                    "width": {
+                      "type": "integer",
+                      "description": "Image width in pixels.",
+                      "minimum": 1
+                    },
+                    "height": {
+                      "type": "integer",
+                      "description": "Image height in pixels.",
+                      "minimum": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Purpose of this image. Helps clients pick the right asset for context (e.g. thumbnail for search results, banner for detail page).",
+                      "enum": [
+                        "thumbnail",
+                        "banner",
+                        "logo",
+                        "hero"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "total_results": {
+          "type": "integer",
+          "description": "Total number of matching providers."
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "Whether additional results are available."
+        }
+      }
+    },
+    "Catalog__catalog_request": {
+      "type": "object",
+      "description": "Request to retrieve a provider's catalog.",
+      "required": [
+        "provider_id"
+      ],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "Identifier of the provider whose catalog to retrieve."
+        }
+      }
+    },
+    "Catalog__catalog_response": {
+      "description": "The provider's complete catalog.",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "./services/types/service_catalog.json",
+      "title": "Service Catalog",
+      "type": "object",
+      "required": [
+        "provider_id",
+        "sections"
+      ],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "Identifier of the provider this catalog belongs to."
+        },
+        "provider_name": {
+          "type": "string",
+          "description": "Display name of the provider."
+        },
+        "sections": {
+          "type": "array",
+          "description": "Catalog sections containing items.",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/catalog_section.json",
+            "title": "Catalog Section",
+            "description": "A categorized section of a provider's catalog (e.g. 'Appetizers', 'Sedans', 'Suites').",
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "items",
+              "is_featured"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique section identifier."
+              },
+              "title": {
+                "type": "string",
+                "description": "Display title for this section."
+              },
+              "description": {
+                "type": "string",
+                "description": "Optional section description."
+              },
+              "items": {
+                "type": "array",
+                "description": "Items in this section.",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/Catalog__reorder_response/properties/items/items"
+                }
+              },
+              "is_featured": {
+                "type": "boolean",
+                "description": "Whether this section is currently featured."
+              }
+            }
+          }
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the last catalog update."
+        }
+      }
+    },
+    "Catalog__reorder_request": {
+      "type": "object",
+      "description": "Request to reorder from a previous order. Returns current availability and pricing for the original items.",
+      "required": [
+        "order_id",
+        "provider_id"
+      ],
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The previous order to reorder from."
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "The provider of the original order."
+        },
+        "scheduled_for": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Optional scheduled time for the reorder. Integrates with available_for_scheduling on items."
+        }
+      }
+    },
+    "Catalog__reorder_response": {
+      "type": "object",
+      "description": "Current availability and pricing for items from the original order.",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Items from the original order with current availability and pricing.",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/catalog_item.json",
+            "title": "Catalog Item",
+            "description": "A single item in a provider's catalog with price and modifiers.",
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "description",
+              "price_cents",
+              "image",
+              "is_available",
+              "is_featured"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique item identifier."
+              },
+              "title": {
+                "type": "string",
+                "description": "Display name of the item."
+              },
+              "description": {
+                "type": "string",
+                "description": "Item description."
+              },
+              "price_cents": {
+                "type": "integer",
+                "description": "Base price in cents.",
+                "minimum": 0
+              },
+              "image": {
+                "$ref": "#/$defs/Discovery__search_response/properties/providers/items/properties/images/items",
+                "description": "Item image."
+              },
+              "modifier_groups": {
+                "type": "array",
+                "description": "Available customization groups for this item.",
+                "items": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "$id": "./services/types/modifier_group.json",
+                  "title": "Modifier Group",
+                  "description": "A group of modifier options for a catalog item (e.g. 'Size', 'Toppings').",
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "title",
+                    "options"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique group identifier."
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Display title for this modifier group."
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "Whether the user must select an option from this group.",
+                      "default": false
+                    },
+                    "min_selections": {
+                      "type": "integer",
+                      "description": "Minimum number of options the user must select.",
+                      "default": 0,
+                      "minimum": 0
+                    },
+                    "max_selections": {
+                      "type": "integer",
+                      "description": "Maximum number of options the user may select.",
+                      "default": 1,
+                      "minimum": 1
+                    },
+                    "options": {
+                      "type": "array",
+                      "description": "Available options in this group.",
+                      "items": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$id": "./services/types/modifier_option.json",
+                        "title": "Modifier Option",
+                        "description": "A single selectable option within a modifier group (e.g. 'Large', 'Extra Cheese').",
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "label"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Unique option identifier."
+                          },
+                          "label": {
+                            "type": "string",
+                            "description": "Display label for this option."
+                          },
+                          "price_delta_cents": {
+                            "type": "integer",
+                            "description": "Price adjustment in cents when this option is selected.",
+                            "default": 0
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "is_available": {
+                "type": "boolean",
+                "description": "Whether this item is currently available for ordering.",
+                "default": true
+              },
+              "is_featured": {
+                "type": "boolean",
+                "description": "Whether this item is currently featured."
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Free-form tags relevant to this item, e.g. 'fast food', 'gourmet', 'date night', 'romantic'."
+              },
+              "images": {
+                "type": "array",
+                "description": "Multiple images for different contexts (thumbnail for list view, hero for detail page, etc.).",
+                "items": {
+                  "$ref": "#/$defs/Discovery__search_response/properties/providers/items/properties/images/items"
+                }
+              }
+            }
+          }
+        },
+        "unavailable_items": {
+          "type": "array",
+          "description": "Items from the original order that are no longer available.",
+          "items": {
+            "type": "object",
+            "required": [
+              "item_id",
+              "title",
+              "reason"
+            ],
+            "properties": {
+              "item_id": {
+                "type": "string",
+                "description": "Identifier of the unavailable item."
+              },
+              "title": {
+                "type": "string",
+                "description": "Display name of the unavailable item."
+              },
+              "reason": {
+                "type": "string",
+                "description": "Why the item is unavailable, e.g. 'Out of stock', 'No longer on menu', 'Provider closed'."
+              }
+            }
+          }
+        }
+      }
+    },
+    "Fulfillment__fulfillment_checkout": {
+      "description": "UCP checkout extended with fulfillment, item customization, and loyalty discounts.",
+      "allOf": [
+        {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://ucp.dev/schemas/shopping/checkout.json",
+          "name": "dev.ucp.shopping.checkout",
+          "version": "2026-01-11",
+          "title": "Checkout Response",
+          "description": "Base checkout schema. Extensions compose onto this using allOf.",
+          "type": "object",
+          "required": [
+            "ucp",
+            "id",
+            "line_items",
+            "status",
+            "currency",
+            "totals",
+            "links",
+            "payment"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "ucp": {
+              "title": "UCP Checkout Response",
+              "description": "UCP metadata for checkout responses.",
+              "type": "object",
+              "required": [
+                "version",
+                "capabilities"
+              ],
+              "properties": {
+                "version": {
+                  "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/ucp/properties/version"
+                },
+                "capabilities": {
+                  "type": "array",
+                  "description": "Active capabilities for this response.",
+                  "items": {
+                    "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/ucp/properties/capabilities/items"
+                  }
+                }
+              }
+            },
+            "id": {
+              "type": "string",
+              "description": "Unique identifier of the checkout session."
+            },
+            "line_items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Fulfillment__fulfillment_checkout/allOf/1/properties/line_items/items/allOf/0"
+              },
+              "description": "List of line items being checked out."
+            },
+            "buyer": {
+              "description": "Representation of the buyer.",
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "https://ucp.dev/schemas/shopping/types/buyer.json",
+              "title": "Buyer",
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "first_name": {
+                  "type": "string",
+                  "description": "First name of the buyer."
+                },
+                "last_name": {
+                  "type": "string",
+                  "description": "Last name of the buyer."
+                },
+                "full_name": {
+                  "type": "string",
+                  "description": "Optional, buyer's full name (if first_name or last_name fields are present they take precedence)."
+                },
+                "email": {
+                  "type": "string",
+                  "description": "Email of the buyer."
+                },
+                "phone_number": {
+                  "type": "string",
+                  "description": "E.164 standard."
+                }
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "incomplete",
+                "requires_escalation",
+                "ready_for_complete",
+                "complete_in_progress",
+                "completed",
+                "canceled"
+              ],
+              "description": "Checkout state indicating the current phase and required action. See Checkout Status lifecycle documentation for state transition details."
+            },
+            "currency": {
+              "type": "string",
+              "description": "ISO 4217 currency code."
+            },
+            "totals": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/totals/items"
+              },
+              "description": "Different cart totals."
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://ucp.dev/schemas/shopping/types/message.json",
+                "title": "Message",
+                "type": "object",
+                "description": "Container for error, warning, or info messages.",
+                "oneOf": [
+                  {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/message_error.json",
+                    "title": "Message Error",
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "code",
+                      "content",
+                      "severity"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "error",
+                        "description": "Message type discriminator."
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "Error code. Possible values include: missing, invalid, out_of_stock, payment_declined, requires_sign_in, requires_3ds, requires_identity_linking. Freeform codes also allowed."
+                      },
+                      "path": {
+                        "type": "string",
+                        "description": "RFC 9535 JSONPath to the component the message refers to (e.g., $.items[1])."
+                      },
+                      "content_type": {
+                        "type": "string",
+                        "enum": [
+                          "plain",
+                          "markdown"
+                        ],
+                        "default": "plain",
+                        "description": "Content format, default = plain."
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Human-readable message."
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "recoverable",
+                          "requires_buyer_input",
+                          "requires_buyer_review"
+                        ],
+                        "description": "Declares who resolves this error. 'recoverable': agent can fix via API. 'requires_buyer_input': merchant requires information their API doesn't support collecting programmatically (checkout incomplete). 'requires_buyer_review': buyer must authorize before order placement due to policy, regulatory, or entitlement rules (checkout complete). Errors with 'requires_*' severity contribute to 'status: requires_escalation'."
+                      }
+                    }
+                  },
+                  {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/message_warning.json",
+                    "title": "Message Warning",
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "code",
+                      "content"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "warning",
+                        "description": "Message type discriminator."
+                      },
+                      "path": {
+                        "type": "string",
+                        "description": "JSONPath (RFC 9535) to related field (e.g., $.line_items[0])."
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "Warning code. Machine-readable identifier for the warning type (e.g., final_sale, prop65, fulfillment_changed, age_restricted, etc.)."
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Human-readable warning message that MUST be displayed."
+                      },
+                      "content_type": {
+                        "type": "string",
+                        "enum": [
+                          "plain",
+                          "markdown"
+                        ],
+                        "default": "plain",
+                        "description": "Content format, default = plain."
+                      }
+                    }
+                  },
+                  {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/message_info.json",
+                    "title": "Message Info",
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "content"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "info",
+                        "description": "Message type discriminator."
+                      },
+                      "path": {
+                        "type": "string",
+                        "description": "RFC 9535 JSONPath to the component the message refers to."
+                      },
+                      "code": {
+                        "type": "string",
+                        "description": "Info code for programmatic handling."
+                      },
+                      "content_type": {
+                        "type": "string",
+                        "enum": [
+                          "plain",
+                          "markdown"
+                        ],
+                        "default": "plain",
+                        "description": "Content format, default = plain."
+                      },
+                      "content": {
+                        "type": "string",
+                        "description": "Human-readable message."
+                      }
+                    }
+                  }
+                ]
+              },
+              "description": "List of messages with error and info about the checkout session state."
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://ucp.dev/schemas/shopping/types/link.json",
+                "title": "Link",
+                "type": "object",
+                "required": [
+                  "type",
+                  "url"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "Type of link. Well-known values: `privacy_policy`, `terms_of_service`, `refund_policy`, `shipping_policy`, `faq`. Consumers SHOULD handle unknown values gracefully by displaying them using the `title` field or omitting the link."
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "The actual URL pointing to the content to be displayed.",
+                    "format": "uri"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Optional display text for the link. When provided, use this instead of generating from type."
+                  }
+                }
+              },
+              "description": "Links to be displayed by the platform (Privacy Policy, TOS). Mandatory for legal compliance."
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "RFC 3339 expiry timestamp. Default TTL is 6 hours from creation if not sent."
+            },
+            "continue_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "URL for checkout handoff and session recovery. MUST be provided when status is requires_escalation. See specification for format and availability requirements."
+            },
+            "payment": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "https://ucp.dev/schemas/shopping/payment.json",
+              "title": "Payment Response",
+              "description": "Payment configuration containing handlers.",
+              "type": "object",
+              "required": [
+                "handlers"
+              ],
+              "properties": {
+                "handlers": {
+                  "type": "array",
+                  "items": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/payment_handler.json",
+                    "title": "Payment Handler Response",
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "version",
+                      "spec",
+                      "config_schema",
+                      "instrument_schemas",
+                      "config"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "The unique identifier for this handler instance within the payment.handlers. Used by payment instruments to reference which handler produced them."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The specification name using reverse-DNS format. For example, dev.ucp.delegate_payment."
+                      },
+                      "version": {
+                        "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/ucp/properties/version",
+                        "description": "Handler version in YYYY-MM-DD format."
+                      },
+                      "spec": {
+                        "type": "string",
+                        "description": "A URI pointing to the technical specification or schema that defines how this handler operates.",
+                        "format": "uri"
+                      },
+                      "config_schema": {
+                        "type": "string",
+                        "description": "A URI pointing to a JSON Schema used to validate the structure of the config object.",
+                        "format": "uri"
+                      },
+                      "instrument_schemas": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "description": "A URI pointing to a schema definition (e.g., JSON Schema) used to validate the structure of the instrument object.",
+                          "format": "uri"
+                        }
+                      },
+                      "config": {
+                        "type": "object",
+                        "description": "A dictionary containing provider-specific configuration details, such as merchant IDs, supported networks, or gateway credentials.",
+                        "additionalProperties": true
+                      }
+                    }
+                  },
+                  "description": "Processing configurations that define how payment instruments can be collected. Each handler specifies a tokenization or payment collection strategy."
+                },
+                "selected_instrument_id": {
+                  "type": "string",
+                  "description": "The id of the currently selected payment instrument from the instruments array. Set by the agent when submitting payment, and echoed back by the merchant in finalized state."
+                },
+                "instruments": {
+                  "type": "array",
+                  "items": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/payment_instrument.json",
+                    "title": "Payment Instrument",
+                    "description": "Matches a specific instrument type based on validation logic.",
+                    "oneOf": [
+                      {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$id": "https://ucp.dev/schemas/shopping/types/card_payment_instrument.json",
+                        "title": "Card Payment Instrument",
+                        "description": "A basic card payment instrument with visible card details. Can be inherited by a handler's instrument schema to define handler-specific display details or more complex credential structures.",
+                        "allOf": [
+                          {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$id": "https://ucp.dev/schemas/shopping/types/payment_instrument_base.json",
+                            "title": "Payment Instrument Base",
+                            "description": "The base definition for any payment instrument. It links the instrument to a specific Merchant configuration (handler_id) and defines common fields like billing address.",
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "handler_id",
+                              "type"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "A unique identifier for this instrument instance, assigned by the Agent. Used to reference this specific instrument in the 'payment.selected_instrument_id' field."
+                              },
+                              "handler_id": {
+                                "type": "string",
+                                "description": "The unique identifier for the handler instance that produced this instrument. This corresponds to the 'id' field in the Payment Handler definition."
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "The broad category of the instrument (e.g., 'card', 'tokenized_card'). Specific schemas will constrain this to a constant value."
+                              },
+                              "billing_address": {
+                                "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/fulfillment/properties/expectations/items/properties/destination",
+                                "description": "The billing address associated with this payment method."
+                              },
+                              "credential": {
+                                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                                "$id": "https://ucp.dev/schemas/shopping/types/payment_credential.json",
+                                "title": "Payment Credential",
+                                "description": "Container for sensitive payment data. Use the specific schema matching the 'type' field.",
+                                "oneOf": [
+                                  {
+                                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                                    "$id": "https://ucp.dev/schemas/shopping/types/token_credential.json",
+                                    "title": "Token Credential Response",
+                                    "description": "Base token credential schema. Concrete payment handlers may extend this schema with additional fields and define their own constraints.",
+                                    "type": "object",
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "description": "The specific type of token produced by the handler (e.g., 'stripe_token')."
+                                      }
+                                    },
+                                    "additionalProperties": true
+                                  },
+                                  {
+                                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                                    "$id": "https://ucp.dev/schemas/shopping/types/card_credential.json",
+                                    "title": "Card Credential",
+                                    "description": "A card credential containing sensitive payment card details including raw Primary Account Numbers (PANs). This credential type MUST NOT be used for checkout, only with payment handlers that tokenize or encrypt credentials. CRITICAL: Both parties handling CardCredential (sender and receiver) MUST be PCI DSS compliant. Transmission MUST use HTTPS/TLS with strong cipher suites.",
+                                    "type": "object",
+                                    "required": [
+                                      "type",
+                                      "card_number_type"
+                                    ],
+                                    "properties": {
+                                      "type": {
+                                        "const": "card",
+                                        "description": "The credential type identifier for card credentials."
+                                      },
+                                      "card_number_type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "fpan",
+                                          "network_token",
+                                          "dpan"
+                                        ],
+                                        "description": "The type of card number. Network tokens are preferred with fallback to FPAN. See PCI Scope for more details."
+                                      },
+                                      "number": {
+                                        "type": "string",
+                                        "description": "Card number.",
+                                        "examples": [
+                                          "4242424242424242"
+                                        ]
+                                      },
+                                      "expiry_month": {
+                                        "type": "integer",
+                                        "description": "The month of the card's expiration date (1-12)."
+                                      },
+                                      "expiry_year": {
+                                        "type": "integer",
+                                        "description": "The year of the card's expiration date."
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Cardholder name.",
+                                        "examples": [
+                                          "Jane Doe"
+                                        ]
+                                      },
+                                      "cvc": {
+                                        "type": "string",
+                                        "maxLength": 4,
+                                        "description": "Card CVC number.",
+                                        "examples": [
+                                          "223"
+                                        ]
+                                      },
+                                      "cryptogram": {
+                                        "type": "string",
+                                        "description": "Cryptogram provided with network tokens.",
+                                        "examples": [
+                                          "gXc5UCLnM6ckD7pjM1TdPA=="
+                                        ]
+                                      },
+                                      "eci_value": {
+                                        "type": "string",
+                                        "description": "Electronic Commerce Indicator / Security Level Indicator provided with network tokens.",
+                                        "examples": [
+                                          "07"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "type",
+                              "brand",
+                              "last_digits"
+                            ],
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "card",
+                                "description": "Indicates this is a card payment instrument."
+                              },
+                              "brand": {
+                                "type": "string",
+                                "description": "The card brand/network (e.g., visa, mastercard, amex)."
+                              },
+                              "last_digits": {
+                                "type": "string",
+                                "description": "Last 4 digits of the card number."
+                              },
+                              "expiry_month": {
+                                "type": "integer",
+                                "description": "The month of the card's expiration date (1-12)."
+                              },
+                              "expiry_year": {
+                                "type": "integer",
+                                "description": "The year of the card's expiration date."
+                              },
+                              "rich_text_description": {
+                                "type": "string",
+                                "description": "An optional rich text description of the card to display to the user (e.g., 'Visa ending in 1234, expires 12/2025')."
+                              },
+                              "rich_card_art": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "An optional URI to a rich image representing the card (e.g., card art provided by the issuer)."
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "description": "The payment instruments available for this payment. Each instrument is associated with a specific handler via the handler_id field. Handlers can extend the base payment_instrument schema to add handler-specific fields."
+                }
+              }
+            },
+            "order": {
+              "description": "Details about an order created for this checkout session.",
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "https://ucp.dev/schemas/shopping/types/order_confirmation.json",
+              "title": "Order Confirmation",
+              "type": "object",
+              "required": [
+                "id",
+                "permalink_url"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique order identifier."
+                },
+                "permalink_url": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "Permalink to access the order on merchant site."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fulfillment": {
+              "description": "Fulfillment details.",
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "./services/types/fulfillment.json",
+              "title": "Fulfillment",
+              "type": "object",
+              "required": [
+                "type",
+                "address",
+                "is_asap"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Fulfillment type identifier.",
+                  "enum": [
+                    "delivery",
+                    "pickup",
+                    "ride",
+                    "booking",
+                    "on_site"
+                  ]
+                },
+                "estimated_service_minutes": {
+                  "type": "integer",
+                  "description": "Estimated service time in minutes from order confirmation.",
+                  "minimum": 1
+                },
+                "service_fee_cents": {
+                  "type": "integer",
+                  "description": "Service fee in cents.",
+                  "minimum": 0
+                },
+                "address": {
+                  "$ref": "#/$defs/Personalization__profile_response/properties/default_address",
+                  "description": "Address for the fulfillment (delivery destination, pickup location, etc.)."
+                },
+                "instructions": {
+                  "type": "string",
+                  "description": "Special fulfillment instructions (e.g. 'Leave at door', 'Meet at lobby').",
+                  "maxLength": 500
+                },
+                "is_asap": {
+                  "type": "boolean",
+                  "description": "Whether to fulfill as soon as possible vs. a scheduled time.",
+                  "default": true
+                },
+                "fees": {
+                  "type": "array",
+                  "description": "Itemized fees beyond the base price. Lets agents explain cost breakdowns: 'Delivery fee $5, service fee $3.'",
+                  "items": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "./services/types/fee.json",
+                    "title": "Fee",
+                    "description": "An individual fee line item. Itemizes charges beyond the base price so agents can explain 'why does it cost this much?'",
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "label",
+                      "amount_cents"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "description": "Fee category. Base types cover common cross-vertical fees; domain profiles may define additional types.",
+                        "enum": [
+                          "delivery",
+                          "service",
+                          "small_order",
+                          "platform",
+                          "surge",
+                          "booking",
+                          "bag"
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "description": "Human-readable display name, e.g. 'Delivery fee', 'Bag charge', 'Surge pricing'."
+                      },
+                      "amount_cents": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Fee amount in minor currency units (cents)."
+                      }
+                    }
+                  }
+                },
+                "tip": {
+                  "description": "Optional gratuity for the service provider or driver.",
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "$id": "./services/types/tip.json",
+                  "title": "Tip",
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "amount_cents"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "How the tip is calculated.",
+                      "enum": [
+                        "percentage",
+                        "fixed"
+                      ]
+                    },
+                    "percentage": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Tip as a percentage of the order total. Present when type is 'percentage'."
+                    },
+                    "amount_cents": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Resolved tip amount in minor currency units (cents)."
+                    }
+                  }
+                },
+                "scheduled_for": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Requested service time as ISO 8601 datetime. Used when is_asap is false, e.g. 'Deliver at 7pm tonight'."
+                },
+                "available_time_slots": {
+                  "type": "array",
+                  "description": "Time slots the provider offers. Agent presents these as choices: 'They have slots at 6pm, 6:30pm, or 7pm.'",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "start",
+                      "end"
+                    ],
+                    "properties": {
+                      "start": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Slot start time."
+                      },
+                      "end": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Slot end time."
+                      },
+                      "is_available": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Whether this slot is still available for booking."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "line_items": {
+              "type": "array",
+              "description": "Cart line items with optional per-item customization.",
+              "items": {
+                "allOf": [
+                  {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/line_item.json",
+                    "title": "Line Item Response",
+                    "type": "object",
+                    "description": "Line item object. Expected to use the currency of the parent object.",
+                    "required": [
+                      "id",
+                      "item",
+                      "quantity",
+                      "totals"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "item": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$id": "https://ucp.dev/schemas/shopping/types/item.json",
+                        "title": "Item Response",
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "title",
+                          "price"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Should be recognized by both the Platform, and the Business. For Google it should match the id provided in the \"id\" field in the product feed."
+                          },
+                          "title": {
+                            "type": "string",
+                            "description": "Product title."
+                          },
+                          "price": {
+                            "type": "integer",
+                            "description": "Unit price in minor (cents) currency units.",
+                            "minimum": 0
+                          },
+                          "image_url": {
+                            "type": "string",
+                            "description": "Product image URI.",
+                            "format": "uri"
+                          }
+                        }
+                      },
+                      "quantity": {
+                        "type": "integer",
+                        "description": "Quantity of the item being purchased.",
+                        "minimum": 1
+                      },
+                      "totals": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/totals/items"
+                        },
+                        "description": "Line item totals breakdown."
+                      },
+                      "parent_id": {
+                        "type": "string",
+                        "description": "Parent line item identifier for any nested structures."
+                      }
+                    }
+                  },
+                  {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "./services/types/item_customization.json",
+                    "title": "Item Customization",
+                    "description": "Per-item customization extending UCP line items with special instructions and modifier selections.",
+                    "type": "object",
+                    "properties": {
+                      "special_instructions": {
+                        "type": "string",
+                        "description": "Free-text instructions for this item.",
+                        "maxLength": 500
+                      },
+                      "modifiers": {
+                        "type": "array",
+                        "description": "Selected modifier option IDs from the item's modifier groups.",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "loyalty": {
+              "description": "Loyalty tier discount applied to this checkout.",
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "./services/types/loyalty_discount.json",
+              "title": "Loyalty Discount",
+              "type": "object",
+              "properties": {
+                "loyalty_tier": {
+                  "type": "string",
+                  "description": "User's loyalty tier as defined by the marketplace, e.g. 'gold', 'premium', 'VIP', 'level_3'."
+                },
+                "loyalty_discount_percent": {
+                  "type": "number",
+                  "description": "Discount percentage applied based on loyalty tier.",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OrderTracking__tracked_order": {
+      "description": "UCP order extended with fulfillment-specific status and ETA.",
+      "allOf": [
+        {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://ucp.dev/schemas/shopping/order.json",
+          "name": "dev.ucp.shopping.order",
+          "version": "2026-01-11",
+          "title": "Order",
+          "description": "Order schema with immutable line items, buyer-facing fulfillment expectations, and append-only event logs.",
+          "$defs": {
+            "platform_config": {
+              "title": "Platform Order Config",
+              "description": "Platform's order capability configuration.",
+              "type": "object",
+              "required": [
+                "webhook_url"
+              ],
+              "properties": {
+                "webhook_url": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "URL where merchant sends order lifecycle events (webhooks)."
+                }
+              }
+            }
+          },
+          "type": "object",
+          "required": [
+            "ucp",
+            "id",
+            "checkout_id",
+            "permalink_url",
+            "line_items",
+            "fulfillment",
+            "totals"
+          ],
+          "properties": {
+            "ucp": {
+              "title": "UCP Order Response",
+              "description": "UCP metadata for order responses. No payment handlers needed post-purchase.",
+              "type": "object",
+              "required": [
+                "version",
+                "capabilities"
+              ],
+              "properties": {
+                "version": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                  "description": "UCP protocol version in YYYY-MM-DD format."
+                },
+                "capabilities": {
+                  "type": "array",
+                  "description": "Active capabilities for this response.",
+                  "items": {
+                    "title": "Capability (Response)",
+                    "description": "Capability reference in responses. Only name/version required to confirm active capabilities.",
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+$",
+                            "description": "Stable capability identifier in reverse-domain notation (e.g., dev.ucp.shopping.checkout). Used in capability negotiation."
+                          },
+                          "version": {
+                            "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/ucp/properties/version",
+                            "description": "Capability version in YYYY-MM-DD format."
+                          },
+                          "spec": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "URL to human-readable specification document."
+                          },
+                          "schema": {
+                            "type": "string",
+                            "format": "uri",
+                            "description": "URL to JSON Schema for this capability's payload."
+                          },
+                          "extends": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9_]*)+$",
+                            "description": "Parent capability this extends. Present for extensions, absent for root capabilities."
+                          },
+                          "config": {
+                            "type": "object",
+                            "description": "Capability-specific configuration (structure defined by each capability)."
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "name",
+                          "version"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "id": {
+              "type": "string",
+              "description": "Unique order identifier."
+            },
+            "checkout_id": {
+              "type": "string",
+              "description": "Associated checkout ID for reconciliation."
+            },
+            "permalink_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "Permalink to access the order on merchant site."
+            },
+            "line_items": {
+              "type": "array",
+              "items": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://ucp.dev/schemas/shopping/types/order_line_item.json",
+                "title": "Order Line Item",
+                "type": "object",
+                "required": [
+                  "id",
+                  "item",
+                  "quantity",
+                  "totals",
+                  "status"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Line item identifier."
+                  },
+                  "item": {
+                    "$ref": "#/$defs/Fulfillment__fulfillment_checkout/allOf/1/properties/line_items/items/allOf/0/properties/item",
+                    "description": "Product data (id, title, price, image_url)."
+                  },
+                  "quantity": {
+                    "type": "object",
+                    "required": [
+                      "total",
+                      "fulfilled"
+                    ],
+                    "properties": {
+                      "total": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Current total quantity."
+                      },
+                      "fulfilled": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Quantity fulfilled (sum from fulfillment events)."
+                      }
+                    },
+                    "description": "Quantity tracking. Both total and fulfilled are derived from events."
+                  },
+                  "totals": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/OrderTracking__tracked_order/allOf/0/properties/totals/items"
+                    },
+                    "description": "Line item totals breakdown."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "processing",
+                      "partial",
+                      "fulfilled"
+                    ],
+                    "description": "Derived status: fulfilled if quantity.fulfilled == quantity.total, partial if quantity.fulfilled > 0, otherwise processing."
+                  },
+                  "parent_id": {
+                    "type": "string",
+                    "description": "Parent line item identifier for any nested structures."
+                  }
+                }
+              },
+              "description": "Immutable line items — source of truth for what was ordered."
+            },
+            "fulfillment": {
+              "type": "object",
+              "properties": {
+                "expectations": {
+                  "type": "array",
+                  "items": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/expectation.json",
+                    "title": "Expectation",
+                    "description": "Buyer-facing fulfillment expectation representing logical groupings of items (e.g., 'package'). Can be split, merged, or adjusted post-order to set buyer expectations for when/how items arrive.",
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "line_items",
+                      "method_type",
+                      "destination"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Expectation identifier."
+                      },
+                      "line_items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "quantity"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Line item ID reference."
+                            },
+                            "quantity": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "description": "Quantity of this item in this expectation."
+                            }
+                          }
+                        },
+                        "description": "Which line items and quantities are in this expectation."
+                      },
+                      "method_type": {
+                        "type": "string",
+                        "enum": [
+                          "shipping",
+                          "pickup",
+                          "digital"
+                        ],
+                        "description": "Delivery method type (shipping, pickup, digital)."
+                      },
+                      "destination": {
+                        "description": "Delivery destination address.",
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$id": "https://ucp.dev/schemas/shopping/types/postal_address.json",
+                        "title": "Postal Address",
+                        "type": "object",
+                        "properties": {
+                          "extended_address": {
+                            "type": "string",
+                            "description": "An address extension such as an apartment number, C/O or alternative name."
+                          },
+                          "street_address": {
+                            "type": "string",
+                            "description": "The street address."
+                          },
+                          "address_locality": {
+                            "type": "string",
+                            "description": "The locality in which the street address is, and which is in the region. For example, Mountain View."
+                          },
+                          "address_region": {
+                            "type": "string",
+                            "description": "The region in which the locality is, and which is in the country. Required for applicable countries (i.e. state in US, province in CA). For example, California or another appropriate first-level Administrative division."
+                          },
+                          "address_country": {
+                            "type": "string",
+                            "description": "The country. Recommended to be in 2-letter ISO 3166-1 alpha-2 format, for example \"US\". For backward compatibility, a 3-letter ISO 3166-1 alpha-3 country code such as \"SGP\" or a full country name such as \"Singapore\" can also be used."
+                          },
+                          "postal_code": {
+                            "type": "string",
+                            "description": "The postal code. For example, 94043."
+                          },
+                          "first_name": {
+                            "type": "string",
+                            "description": "Optional. First name of the contact associated with the address."
+                          },
+                          "last_name": {
+                            "type": "string",
+                            "description": "Optional. Last name of the contact associated with the address."
+                          },
+                          "full_name": {
+                            "type": "string",
+                            "description": "Optional. Full name of the contact associated with the address (if first_name or last_name fields are present they take precedence)."
+                          },
+                          "phone_number": {
+                            "type": "string",
+                            "description": "Optional. Phone number of the contact associated with the address."
+                          }
+                        }
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Human-readable delivery description (e.g., 'Arrives in 5-8 business days')."
+                      },
+                      "fulfillable_on": {
+                        "type": "string",
+                        "description": "When this expectation can be fulfilled: 'now' or ISO 8601 timestamp for future date (backorder, pre-order)."
+                      }
+                    }
+                  },
+                  "description": "Buyer-facing groups representing when/how items will be delivered. Can be split, merged, or adjusted post-order."
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$id": "https://ucp.dev/schemas/shopping/types/fulfillment_event.json",
+                    "title": "Fulfillment Event",
+                    "description": "Append-only fulfillment event representing an actual shipment. References line items by ID.",
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "occurred_at",
+                      "type",
+                      "line_items"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Fulfillment event identifier."
+                      },
+                      "occurred_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "RFC 3339 timestamp when this fulfillment event occurred."
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Fulfillment event type. Common values include: processing (preparing to ship), shipped (handed to carrier), in_transit (in delivery network), delivered (received by buyer), failed_attempt (delivery attempt failed), canceled (fulfillment canceled), undeliverable (cannot be delivered), returned_to_sender (returned to merchant)."
+                      },
+                      "line_items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "quantity"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Line item ID reference."
+                            },
+                            "quantity": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "description": "Quantity fulfilled in this event."
+                            }
+                          }
+                        },
+                        "description": "Which line items and quantities are fulfilled in this event."
+                      },
+                      "tracking_number": {
+                        "type": "string",
+                        "description": "Carrier tracking number (required if type != processing)."
+                      },
+                      "tracking_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "URL to track this shipment (required if type != processing)."
+                      },
+                      "carrier": {
+                        "type": "string",
+                        "description": "Carrier name (e.g., 'FedEx', 'USPS')."
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Human-readable description of the shipment status or delivery information (e.g., 'Delivered to front door', 'Out for delivery')."
+                      }
+                    }
+                  },
+                  "description": "Append-only event log of actual shipments. Each event references line items by ID."
+                }
+              },
+              "description": "Fulfillment data: buyer expectations and what actually happened."
+            },
+            "adjustments": {
+              "type": "array",
+              "items": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://ucp.dev/schemas/shopping/types/adjustment.json",
+                "title": "Adjustment",
+                "description": "Append-only event that exists independently of fulfillment. Typically represents money movements but can be any post-order change. Polymorphic type that can optionally reference line items.",
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "occurred_at",
+                  "status"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Adjustment event identifier."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Type of adjustment (open string). Typically money-related like: refund, return, credit, price_adjustment, dispute, cancellation. Can be any value that makes sense for the merchant's business."
+                  },
+                  "occurred_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "RFC 3339 timestamp when this adjustment occurred."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "completed",
+                      "failed"
+                    ],
+                    "description": "Adjustment status."
+                  },
+                  "line_items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "quantity"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Line item ID reference."
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Quantity affected by this adjustment."
+                        }
+                      }
+                    },
+                    "description": "Which line items and quantities are affected (optional)."
+                  },
+                  "amount": {
+                    "type": "integer",
+                    "description": "Amount in minor units (cents) for refunds, credits, price adjustments (optional)."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Human-readable reason or description (e.g., 'Defective item', 'Customer requested')."
+                  }
+                }
+              },
+              "description": "Append-only event log of money movements (refunds, returns, credits, disputes, cancellations, etc.) that exist independently of fulfillment."
+            },
+            "totals": {
+              "type": "array",
+              "items": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "https://ucp.dev/schemas/shopping/types/total.json",
+                "title": "Total Response",
+                "type": "object",
+                "required": [
+                  "type",
+                  "amount"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "items_discount",
+                      "subtotal",
+                      "discount",
+                      "fulfillment",
+                      "tax",
+                      "fee",
+                      "total"
+                    ],
+                    "description": "Type of total categorization."
+                  },
+                  "display_text": {
+                    "type": "string",
+                    "description": "Text to display against the amount. Should reflect appropriate method (e.g., 'Shipping', 'Delivery')."
+                  },
+                  "amount": {
+                    "type": "integer",
+                    "description": "If type == total, sums subtotal - discount + fulfillment + tax + fee. Should be >= 0. Amount in minor (cents) currency units.",
+                    "minimum": 0
+                  }
+                }
+              },
+              "description": "Different totals for the order."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fulfillment_status": {
+              "description": "Current fulfillment status and tracking information.",
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$id": "./services/types/fulfillment_status.json",
+              "title": "Fulfillment Status",
+              "type": "object",
+              "required": [
+                "order_id",
+                "status",
+                "updated_at"
+              ],
+              "properties": {
+                "order_id": {
+                  "type": "string",
+                  "description": "Identifier of the order being tracked."
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Current order status.",
+                  "enum": [
+                    "accepted",
+                    "in_progress",
+                    "en_route",
+                    "completed",
+                    "cancelled"
+                  ]
+                },
+                "estimated_service_minutes": {
+                  "type": "integer",
+                  "description": "Updated estimated service time in minutes.",
+                  "minimum": 0
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Timestamp of the last status update."
+                },
+                "agent_location": {
+                  "type": "object",
+                  "description": "Real-time agent location for live tracking.",
+                  "properties": {
+                    "latitude": {
+                      "type": "number",
+                      "minimum": -90,
+                      "maximum": 90
+                    },
+                    "longitude": {
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    }
+                  }
+                },
+                "history": {
+                  "type": "array",
+                  "description": "Ordered timeline of status transitions. Enables agents to narrate the full journey: 'Accepted at 7:01, picked up at 7:15.'",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "timestamp"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "description": "The status at this point in time."
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When this status was reached."
+                      },
+                      "note": {
+                        "type": "string",
+                        "description": "Optional human-readable context, e.g. 'Driver stuck in traffic'."
+                      }
+                    }
+                  }
+                },
+                "is_delayed": {
+                  "type": "boolean",
+                  "description": "Whether the order is running behind the original estimate. Allows agents to proactively warn: 'Heads up, your order is running late.'"
+                },
+                "delay_minutes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "How many minutes behind the original estimate. e.g. 'Running about 10 minutes late.'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OrderTracking__status_update_event": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "./services/types/status_update_event.json",
+      "title": "Status Update Event",
+      "description": "Webhook payload sent when order status changes. Push model — the marketplace sends this to the agent/platform.",
+      "type": "object",
+      "required": [
+        "event_type",
+        "order_id",
+        "status"
+      ],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "const": "order.status_updated",
+          "description": "Event type identifier."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Identifier of the order whose status changed."
+        },
+        "status": {
+          "$ref": "#/$defs/OrderTracking__tracked_order/allOf/1/properties/fulfillment_status",
+          "description": "The updated fulfillment status."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the event was emitted."
+        }
+      }
+    },
+    "Reviews__submit_review_request": {
+      "type": "object",
+      "description": "Request to submit a review after service completion.",
+      "required": [
+        "order_id",
+        "provider_id",
+        "rating"
+      ],
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "description": "The order being reviewed."
+        },
+        "provider_id": {
+          "type": "string",
+          "description": "The provider being reviewed."
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Overall rating out of 5."
+        },
+        "comment": {
+          "type": "string",
+          "description": "Optional free-text review.",
+          "maxLength": 2000
+        },
+        "scores": {
+          "type": "object",
+          "description": "Optional category scores.",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          }
+        }
+      }
+    },
+    "Reviews__submit_review_response": {
+      "description": "The created review.",
+      "$ref": "#/$defs/Reviews__get_reviews_response/properties/reviews/items"
+    },
+    "Reviews__get_reviews_request": {
+      "type": "object",
+      "description": "Request to retrieve reviews for a provider.",
+      "required": [
+        "provider_id"
+      ],
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "The provider whose reviews to retrieve."
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Page number."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "description": "Number of reviews per page."
+        }
+      }
+    },
+    "Reviews__get_reviews_response": {
+      "type": "object",
+      "description": "Paginated list of reviews for a provider.",
+      "required": [
+        "reviews",
+        "average_rating",
+        "total_reviews"
+      ],
+      "properties": {
+        "reviews": {
+          "type": "array",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/review.json",
+            "title": "Review",
+            "description": "A post-service review submitted by a customer.",
+            "type": "object",
+            "required": [
+              "id",
+              "order_id",
+              "provider_id",
+              "rating",
+              "created_at"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique review identifier."
+              },
+              "order_id": {
+                "type": "string",
+                "description": "The order this review is for."
+              },
+              "provider_id": {
+                "type": "string",
+                "description": "The provider being reviewed."
+              },
+              "rating": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 5,
+                "description": "Overall rating out of 5."
+              },
+              "comment": {
+                "type": "string",
+                "description": "Optional free-text review.",
+                "maxLength": 2000
+              },
+              "scores": {
+                "type": "object",
+                "description": "Optional category scores, e.g. {\"food\": 5, \"delivery\": 3} or {\"cleanliness\": 4, \"location\": 5}.",
+                "additionalProperties": {
+                  "type": "number",
+                  "minimum": 1,
+                  "maximum": 5
+                }
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the review was submitted."
+              }
+            }
+          },
+          "description": "List of reviews."
+        },
+        "average_rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Provider's average rating across all reviews."
+        },
+        "total_reviews": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of reviews for this provider."
+        },
+        "has_more": {
+          "type": "boolean",
+          "description": "Whether more pages of reviews are available."
+        }
+      }
+    },
+    "Streaming__stream_subscribe": {
+      "type": "object",
+      "description": "Client-to-server message to start receiving tracking events for an order.",
+      "required": [
+        "action",
+        "order_id",
+        "token"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "const": "subscribe",
+          "description": "Action identifier."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Identifier of the order to track."
+        },
+        "token": {
+          "type": "string",
+          "description": "Bearer token for authentication. Sent in the first message since WebSocket handshake does not support custom HTTP headers in browsers."
+        }
+      }
+    },
+    "Streaming__stream_unsubscribe": {
+      "type": "object",
+      "description": "Client-to-server message to stop receiving tracking events for an order.",
+      "required": [
+        "action",
+        "order_id"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "const": "unsubscribe",
+          "description": "Action identifier."
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Identifier of the order to stop tracking."
+        }
+      }
+    },
+    "Streaming__stream_event": {
+      "description": "Server-to-client event envelope. See tracking_stream_event.json for the full schema.",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "./services/types/tracking_stream_event.json",
+      "title": "Tracking Stream Event",
+      "type": "object",
+      "required": [
+        "event_type",
+        "timestamp"
+      ],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "description": "Discriminator for routing the message to the correct handler.",
+          "enum": [
+            "location_update",
+            "status_changed",
+            "heartbeat"
+          ]
+        },
+        "order_id": {
+          "type": "string",
+          "description": "Identifier of the order being tracked. Present on all events except heartbeat."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the event was emitted."
+        }
+      },
+      "oneOf": [
+        {
+          "description": "Continuous agent location and ETA update. Sent every 3-5 seconds during the en_route phase.",
+          "properties": {
+            "event_type": {
+              "const": "location_update"
+            },
+            "payload": {
+              "type": "object",
+              "required": [
+                "agent_location",
+                "updated_at"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "description": "Current order status at time of location update.",
+                  "enum": [
+                    "accepted",
+                    "in_progress",
+                    "en_route",
+                    "completed",
+                    "cancelled"
+                  ]
+                },
+                "agent_location": {
+                  "type": "object",
+                  "required": [
+                    "latitude",
+                    "longitude"
+                  ],
+                  "properties": {
+                    "latitude": {
+                      "type": "number",
+                      "minimum": -90,
+                      "maximum": 90
+                    },
+                    "longitude": {
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    },
+                    "heading": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 360,
+                      "description": "Compass heading in degrees (0 = north, 90 = east). Useful for rotating a map marker."
+                    },
+                    "speed_kmh": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Current speed in km/h."
+                    }
+                  },
+                  "description": "Real-time agent location."
+                },
+                "estimated_service_minutes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Updated ETA in minutes."
+                },
+                "updated_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Timestamp of the GPS reading."
+                }
+              }
+            }
+          },
+          "required": [
+            "event_type",
+            "order_id",
+            "payload",
+            "timestamp"
+          ]
+        },
+        {
+          "description": "Status transition event. Sent when the order moves between lifecycle stages.",
+          "properties": {
+            "event_type": {
+              "const": "status_changed"
+            },
+            "payload": {
+              "$ref": "#/$defs/OrderTracking__status_update_event"
+            }
+          },
+          "required": [
+            "event_type",
+            "order_id",
+            "payload",
+            "timestamp"
+          ]
+        },
+        {
+          "description": "Keep-alive heartbeat. Sent every 30 seconds to maintain the connection.",
+          "properties": {
+            "event_type": {
+              "const": "heartbeat"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "server_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Current server time."
+                }
+              }
+            }
+          },
+          "required": [
+            "event_type",
+            "timestamp"
+          ]
+        }
+      ]
+    },
+    "Personalization__profile_response": {
+      "description": "The user's profile including preferences, loyalty status, and order history.",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "./services/types/user_profile.json",
+      "title": "User Profile",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "User's display name."
+        },
+        "loyalty_tier": {
+          "type": "string",
+          "description": "Current loyalty program tier as defined by the marketplace, e.g. 'gold', 'premium', 'VIP', 'level_3'."
+        },
+        "loyalty_points": {
+          "type": "integer",
+          "description": "Accumulated loyalty points.",
+          "minimum": 0
+        },
+        "preferred_categories": {
+          "type": "array",
+          "description": "User's preferred service categories for personalized recommendations.",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/service_category.json",
+            "title": "ServiceCategory",
+            "description": "Provider category. Open string — see domain profiles for vertical-specific values.",
+            "type": "string",
+            "examples": [
+              "italian",
+              "japanese",
+              "sedan",
+              "suv",
+              "hotel",
+              "villa",
+              "plumbing",
+              "tutoring"
+            ]
+          }
+        },
+        "order_history": {
+          "type": "array",
+          "description": "Recent order history for reorder suggestions and personalization.",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/order_history_entry.json",
+            "title": "Order History Entry",
+            "description": "A single entry in the user's order history.",
+            "type": "object",
+            "required": [
+              "order_id",
+              "provider_id",
+              "ordered_at"
+            ],
+            "properties": {
+              "order_id": {
+                "type": "string",
+                "description": "Unique order identifier."
+              },
+              "provider_id": {
+                "type": "string",
+                "description": "Identifier of the provider."
+              },
+              "provider_name": {
+                "type": "string",
+                "description": "Display name of the provider."
+              },
+              "items": {
+                "type": "array",
+                "description": "Items ordered.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "item_id",
+                    "title",
+                    "quantity"
+                  ],
+                  "properties": {
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              },
+              "ordered_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp when the order was placed."
+              },
+              "total_cents": {
+                "type": "integer",
+                "description": "Total order amount in cents."
+              }
+            }
+          }
+        },
+        "default_address": {
+          "description": "User's saved default address.",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "./services/shared/postal_address.json",
+          "title": "Postal Address",
+          "type": "object",
+          "required": [
+            "street_line_1",
+            "city",
+            "postal_code",
+            "country_code"
+          ],
+          "properties": {
+            "street_line_1": {
+              "type": "string",
+              "description": "Primary street address."
+            },
+            "street_line_2": {
+              "type": "string",
+              "description": "Secondary address line (apt, suite, unit)."
+            },
+            "city": {
+              "type": "string",
+              "description": "City name."
+            },
+            "state": {
+              "type": "string",
+              "description": "State or province."
+            },
+            "postal_code": {
+              "type": "string",
+              "description": "Postal or ZIP code."
+            },
+            "country_code": {
+              "type": "string",
+              "description": "ISO 3166-1 alpha-2 country code.",
+              "minLength": 2,
+              "maxLength": 2
+            },
+            "latitude": {
+              "type": "number",
+              "description": "Latitude for proximity-based operations.",
+              "minimum": -90,
+              "maximum": 90
+            },
+            "longitude": {
+              "type": "number",
+              "description": "Longitude for proximity-based operations.",
+              "minimum": -180,
+              "maximum": 180
+            }
+          }
+        }
+      }
+    },
+    "Personalization__promotions_request": {
+      "type": "object",
+      "description": "Request for personalized promotions, optionally scoped to a provider.",
+      "properties": {
+        "provider_id": {
+          "type": "string",
+          "description": "Scope promotions to a specific provider."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum number of promotions to return.",
+          "minimum": 1
+        }
+      }
+    },
+    "Personalization__promotions_response": {
+      "type": "object",
+      "description": "List of personalized promotions for the user.",
+      "required": [
+        "promotions"
+      ],
+      "properties": {
+        "promotions": {
+          "type": "array",
+          "items": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$id": "./services/types/promotion.json",
+            "title": "Promotion",
+            "description": "A personalized promotion targeted to a specific user.",
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "type"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique promotion identifier."
+              },
+              "title": {
+                "type": "string",
+                "description": "Display title for the promotion."
+              },
+              "description": {
+                "type": "string",
+                "description": "Detailed promotion description."
+              },
+              "type": {
+                "description": "Classification of this promotion.",
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$id": "./services/types/promotion_type.json",
+                "title": "Promotion Type",
+                "type": "string",
+                "enum": [
+                  "discount",
+                  "reorder",
+                  "category",
+                  "loyalty"
+                ]
+              },
+              "discount_percent": {
+                "type": "number",
+                "description": "Discount percentage if applicable.",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "applicable_provider_id": {
+                "type": "string",
+                "description": "Provider this promotion applies to, if scoped."
+              },
+              "valid_until": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Expiration timestamp."
+              },
+              "minimum_order_cents": {
+                "type": "integer",
+                "description": "Minimum order value to qualify, in cents.",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "Asp": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "./asp.json",
+      "title": "ASP Protocol Metadata",
+      "description": "Defines the top-level protocol metadata used in discovery profiles and capability responses.",
+      "type": "object",
+      "required": [
+        "version",
+        "services",
+        "capabilities"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Protocol version in YYYY-MM-DD format.",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "services": {
+          "type": "object",
+          "description": "Map of service name to service definition.",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "version"
+            ],
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "Service version in YYYY-MM-DD format."
+              },
+              "spec": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL to the human-readable spec page."
+              },
+              "rest": {
+                "type": "object",
+                "properties": {
+                  "schema": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to the OpenAPI schema."
+                  },
+                  "endpoint": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Base URL for the REST API."
+                  }
+                }
+              },
+              "mcp": {
+                "type": "object",
+                "properties": {
+                  "schema": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to the OpenRPC specification (JSON format) defining available MCP tools."
+                  },
+                  "endpoint": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "MCP server endpoint."
+                  }
+                }
+              },
+              "a2a": {
+                "type": "object",
+                "properties": {
+                  "agentCard": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to the A2A agent card (JSON)."
+                  },
+                  "endpoint": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "A2A JSON-RPC endpoint."
+                  }
+                }
+              },
+              "websocket": {
+                "type": "object",
+                "properties": {
+                  "schema": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to the AsyncAPI specification defining WebSocket channels."
+                  },
+                  "endpoint": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "WebSocket base URL (wss://)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "description": "Array of capability declarations.",
+          "items": {
+            "$ref": "#/$defs/Capability"
+          }
+        }
+      }
+    },
+    "Capability": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "./capability.json",
+      "title": "Capability Declaration",
+      "description": "Describes a single capability or extension in a discovery profile.",
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Reverse-domain identifier, e.g. dev.asp.services.discovery."
+        },
+        "version": {
+          "type": "string",
+          "description": "Capability version in YYYY-MM-DD format.",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "spec": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to the human-readable spec page."
+        },
+        "schema": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to the JSON schema."
+        },
+        "extends": {
+          "type": "string",
+          "description": "Name of the capability this extends. Only set for extensions."
+        }
+      }
+    }
+  }
+}

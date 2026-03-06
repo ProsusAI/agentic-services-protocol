@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/service_category.json",
+  "title": "ServiceCategory",
+  "description": "Provider category. Open string \u2014 see domain profiles for vertical-specific values.",
+  "type": "string",
+  "examples": [
+    "italian",
+    "japanese",
+    "sedan",
+    "suv",
+    "hotel",
+    "villa",
+    "plumbing",
+    "tutoring"
+  ]
+}

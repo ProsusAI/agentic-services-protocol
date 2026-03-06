@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/types/tip.json",
+  "title": "Tip",
+  "description": "A gratuity added to a service order. Can be a fixed amount or a percentage of the order total.",
+  "type": "object",
+  "required": ["type", "amount_cents"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "How the tip is calculated.",
+      "enum": ["percentage", "fixed"]
+    },
+    "percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Tip as a percentage of the order total. Present when type is 'percentage'."
+    },
+    "amount_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Resolved tip amount in minor currency units (cents)."
+    }
+  }
+}

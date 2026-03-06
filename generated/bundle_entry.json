@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bundle-entry",
+  "title": "ASP Schema Bundle",
+  "description": "Resolved bundle of all ASP schemas for code generation.",
+  "type": "object",
+  "$defs": {
+    "Discovery": {
+      "$ref": "../spec/schemas/services/discovery.json"
+    },
+    "Catalog": {
+      "$ref": "../spec/schemas/services/catalog.json"
+    },
+    "Fulfillment": {
+      "$ref": "../spec/schemas/services/fulfillment.json"
+    },
+    "OrderTracking": {
+      "$ref": "../spec/schemas/services/order_tracking.json"
+    },
+    "Reviews": {
+      "$ref": "../spec/schemas/services/reviews.json"
+    },
+    "Streaming": {
+      "$ref": "../spec/schemas/services/streaming.json"
+    },
+    "Personalization": {
+      "$ref": "../spec/schemas/services/personalization.json"
+    },
+    "Asp": {
+      "$ref": "../spec/schemas/asp.json"
+    },
+    "Capability": {
+      "$ref": "../spec/schemas/capability.json"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./services/shared/money.json",
+  "title": "Money",
+  "description": "Monetary value represented in the smallest currency unit (e.g. cents).",
+  "type": "object",
+  "required": [
+    "amount",
+    "currency"
+  ],
+  "properties": {
+    "amount": {
+      "type": "integer",
+      "description": "Value in smallest currency unit (e.g. 1299 = $12.99)."
+    },
+    "currency": {
+      "type": "string",
+      "description": "ISO 4217 currency code.",
+      "default": "USD",
+      "minLength": 3,
+      "maxLength": 3
+    }
+  }
+}
